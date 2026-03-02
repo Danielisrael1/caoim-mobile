@@ -1,98 +1,234 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { EventCard } from "@/components/event-card";
+import { LiveStreamCard } from "@/components/live-stream-card";
+import { UpdateCard } from "@/components/update-card";
+import {
+    CHURCH_EVENTS,
+    CHURCH_UPDATES,
+    LIVE_STREAMS,
+} from "@/constants/church-data";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { useRouter } from "expo-router";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
+  const t = useAppTheme();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const recentUpdate = CHURCH_UPDATES[0];
+  const upcomingEvent = CHURCH_EVENTS[0];
+  const liveStream = LIVE_STREAMS.find((s) => s.isLive) || LIVE_STREAMS[0];
+
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: t.background }}
+      edges={["top"]}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View
+          style={[
+            styles.headerSection,
+            { backgroundColor: t.isDark ? "#151429" : "#EDE9FE" },
+          ]}
+        >
+          <Text style={[styles.headerGreeting, { color: t.textSecondary }]}>
+            Welcome to
+          </Text>
+          <Text style={[styles.headerTitle, { color: t.text }]}>
+            CAOIM Church ✝️
+          </Text>
+          <Text style={[styles.headerSubtitle, { color: t.tint }]}>
+            Connect • Worship • Grow in Faith
+          </Text>
+        </View>
+
+        {/* Featured Live Stream */}
+        <View style={styles.sectionContainer}>
+          <SectionHeader title="🔴 Featured Live" theme={t} />
+          {liveStream && (
+            <LiveStreamCard
+              stream={liveStream}
+              onPress={() => router.push("/(tabs)/live-stream")}
+            />
+          )}
+        </View>
+
+        {/* Latest Update */}
+        <View style={styles.sectionContainer}>
+          <SectionHeader title="📢 Latest Update" theme={t} />
+          {recentUpdate && (
+            <UpdateCard
+              update={recentUpdate}
+              onPress={() => router.push("/(tabs)/updates")}
+            />
+          )}
+        </View>
+
+        {/* Upcoming Event */}
+        <View style={styles.sectionContainer}>
+          <SectionHeader title="📅 Upcoming Event" theme={t} />
+          {upcomingEvent && (
+            <EventCard
+              event={upcomingEvent}
+              onPress={() => router.push("/(tabs)/events")}
+            />
+          )}
+        </View>
+
+        {/* Quick Links */}
+        <View style={styles.quickLinksSection}>
+          <Text style={[styles.sectionTitle, { color: t.text }]}>
+            Quick Links
+          </Text>
+          <View style={styles.quickLinksGrid}>
+            <QuickLinkButton
+              title="All Events"
+              icon="📅"
+              theme={t}
+              onPress={() => router.push("/(tabs)/events")}
+            />
+            <QuickLinkButton
+              title="Watch Live"
+              icon="📺"
+              theme={t}
+              onPress={() => router.push("/(tabs)/live-stream")}
+            />
+            <QuickLinkButton
+              title="Updates"
+              icon="📢"
+              theme={t}
+              onPress={() => router.push("/(tabs)/updates")}
+            />
+            <QuickLinkButton
+              title="Contact Us"
+              icon="📞"
+              theme={t}
+              onPress={() => {}}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+/* ── Helpers ─────────────────────────────────────────── */
+
+function SectionHeader({ title, theme }: { title: string; theme: any }) {
+  return (
+    <View style={styles.sectionHeader}>
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
+    </View>
+  );
+}
+
+function QuickLinkButton({
+  title,
+  icon,
+  theme,
+  onPress,
+}: {
+  title: string;
+  icon: string;
+  theme: any;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      style={[
+        styles.quickLinkButton,
+        {
+          backgroundColor: theme.cardBg,
+          borderColor: theme.border,
+        },
+      ]}
+    >
+      <Text style={styles.quickLinkIcon}>{icon}</Text>
+      <Text style={[styles.quickLinkText, { color: theme.text }]}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+/* ── Styles ──────────────────────────────────────────── */
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
+  headerSection: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  headerGreeting: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  headerTitle: {
+    fontSize: 30,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  sectionContainer: {
+    marginBottom: 8,
+  },
+  sectionHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  quickLinksSection: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 32,
+  },
+  quickLinksGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 12,
+  },
+  quickLinkButton: {
+    width: "47%",
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+  },
+  quickLinkIcon: {
+    fontSize: 28,
+  },
+  quickLinkText: {
+    fontSize: 13,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });
