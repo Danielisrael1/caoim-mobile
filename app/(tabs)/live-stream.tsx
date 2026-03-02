@@ -1,6 +1,7 @@
 import { LiveStreamCard } from "@/components/live-stream-card";
 import { LIVE_STREAMS } from "@/constants/church-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -63,9 +64,12 @@ export default function LiveStreamScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={[styles.infoTitle, { color: t.text }]}>
-              📱 Watch Anywhere
-            </Text>
+            <View style={styles.infoTitleRow}>
+              <Ionicons name="phone-portrait" size={18} color={t.tint} />
+              <Text style={[styles.infoTitle, { color: t.text }]}>
+                Watch Anywhere
+              </Text>
+            </View>
             <Text style={[styles.infoText, { color: t.textSecondary }]}>
               Access all our live streams and recordings from your phone,
               tablet, or computer.
@@ -78,9 +82,12 @@ export default function LiveStreamScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={[styles.infoTitle, { color: t.text }]}>
-              🔔 Get Notifications
-            </Text>
+            <View style={styles.infoTitleRow}>
+              <Ionicons name="notifications" size={18} color={t.tint} />
+              <Text style={[styles.infoTitle, { color: t.text }]}>
+                Get Notifications
+              </Text>
+            </View>
             <Text style={[styles.infoText, { color: t.textSecondary }]}>
               Enable notifications to be alerted when we go live with a new
               service or event.
@@ -93,9 +100,12 @@ export default function LiveStreamScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={[styles.infoTitle, { color: t.text }]}>
-              📅 Scheduled Times
-            </Text>
+            <View style={styles.infoTitleRow}>
+              <Ionicons name="calendar" size={18} color={t.tint} />
+              <Text style={[styles.infoTitle, { color: t.text }]}>
+                Scheduled Times
+              </Text>
+            </View>
             <Text style={[styles.infoText, { color: t.textSecondary }]}>
               Sunday Service: 10:00 AM{"\n"}
               Midweek Prayer: 7:00 PM{"\n"}
@@ -152,9 +162,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
   },
+  infoTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
   infoTitle: {
     fontWeight: "700",
-    marginBottom: 8,
     fontSize: 16,
   },
   infoText: {

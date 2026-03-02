@@ -1,6 +1,7 @@
 import { EventCard } from "@/components/event-card";
 import { CHURCH_EVENTS } from "@/constants/church-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
     ScrollView,
@@ -128,7 +129,7 @@ export default function EventsScreen() {
             ]}
           >
             <View style={styles.featureCardHeader}>
-              <Text style={styles.featureIcon}>🔔</Text>
+              <Ionicons name="notifications" size={24} color={t.tint} />
               <Text style={[styles.featureHeading, { color: t.text }]}>
                 Subscribe to Notifications
               </Text>
@@ -146,7 +147,7 @@ export default function EventsScreen() {
             ]}
           >
             <View style={styles.featureCardHeader}>
-              <Text style={styles.featureIcon}>📧</Text>
+              <Ionicons name="mail" size={24} color={t.tint} />
               <Text style={[styles.featureHeading, { color: t.text }]}>
                 Email Newsletter
               </Text>
@@ -164,7 +165,7 @@ export default function EventsScreen() {
             ]}
           >
             <View style={styles.featureCardHeader}>
-              <Text style={styles.featureIcon}>👥</Text>
+              <Ionicons name="people" size={24} color={t.tint} />
               <Text style={[styles.featureHeading, { color: t.text }]}>
                 Ask a Question
               </Text>
@@ -242,9 +243,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     marginBottom: 8,
-  },
-  featureIcon: {
-    fontSize: 24,
   },
   featureHeading: {
     fontSize: 15,

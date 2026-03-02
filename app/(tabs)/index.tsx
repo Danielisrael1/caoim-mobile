@@ -7,6 +7,7 @@ import {
     LIVE_STREAMS,
 } from "@/constants/church-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
     ScrollView,
@@ -42,7 +43,8 @@ export default function HomeScreen() {
             Welcome to
           </Text>
           <Text style={[styles.headerTitle, { color: t.text }]}>
-            CAOIM Church ✝️
+            CAOIM Church{" "}
+            <MaterialCommunityIcons name="cross" size={28} color={t.tint} />
           </Text>
           <Text style={[styles.headerSubtitle, { color: t.tint }]}>
             Connect • Worship • Grow in Faith
@@ -51,7 +53,11 @@ export default function HomeScreen() {
 
         {/* Featured Live Stream */}
         <View style={styles.sectionContainer}>
-          <SectionHeader title="🔴 Featured Live" theme={t} />
+          <SectionHeader
+            title="Featured Live"
+            icon={<Ionicons name="radio" size={20} color={t.error} />}
+            theme={t}
+          />
           {liveStream && (
             <LiveStreamCard
               stream={liveStream}
@@ -62,7 +68,11 @@ export default function HomeScreen() {
 
         {/* Latest Update */}
         <View style={styles.sectionContainer}>
-          <SectionHeader title="📢 Latest Update" theme={t} />
+          <SectionHeader
+            title="Latest Update"
+            icon={<Ionicons name="megaphone" size={20} color={t.tint} />}
+            theme={t}
+          />
           {recentUpdate && (
             <UpdateCard
               update={recentUpdate}
@@ -73,7 +83,11 @@ export default function HomeScreen() {
 
         {/* Upcoming Event */}
         <View style={styles.sectionContainer}>
-          <SectionHeader title="📅 Upcoming Event" theme={t} />
+          <SectionHeader
+            title="Upcoming Event"
+            icon={<Ionicons name="calendar" size={20} color={t.tint} />}
+            theme={t}
+          />
           {upcomingEvent && (
             <EventCard
               event={upcomingEvent}
@@ -90,25 +104,25 @@ export default function HomeScreen() {
           <View style={styles.quickLinksGrid}>
             <QuickLinkButton
               title="All Events"
-              icon="📅"
+              icon={<Ionicons name="calendar" size={28} color={t.tint} />}
               theme={t}
               onPress={() => router.push("/(tabs)/events")}
             />
             <QuickLinkButton
               title="Watch Live"
-              icon="📺"
+              icon={<Ionicons name="videocam" size={28} color={t.tint} />}
               theme={t}
               onPress={() => router.push("/(tabs)/live-stream")}
             />
             <QuickLinkButton
               title="Updates"
-              icon="📢"
+              icon={<Ionicons name="megaphone" size={28} color={t.tint} />}
               theme={t}
               onPress={() => router.push("/(tabs)/updates")}
             />
             <QuickLinkButton
               title="Contact Us"
-              icon="📞"
+              icon={<Ionicons name="call" size={28} color={t.tint} />}
               theme={t}
               onPress={() => {}}
             />
@@ -121,10 +135,23 @@ export default function HomeScreen() {
 
 /* ── Helpers ─────────────────────────────────────────── */
 
-function SectionHeader({ title, theme }: { title: string; theme: any }) {
+function SectionHeader({
+  title,
+  icon,
+  theme,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  theme: any;
+}) {
   return (
     <View style={styles.sectionHeader}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
+      <View style={styles.sectionHeaderRow}>
+        {icon}
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          {title}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -136,7 +163,7 @@ function QuickLinkButton({
   onPress,
 }: {
   title: string;
-  icon: string;
+  icon: React.ReactNode;
   theme: any;
   onPress: () => void;
 }) {
@@ -152,7 +179,7 @@ function QuickLinkButton({
         },
       ]}
     >
-      <Text style={styles.quickLinkIcon}>{icon}</Text>
+      {icon}
       <Text style={[styles.quickLinkText, { color: theme.text }]}>{title}</Text>
     </TouchableOpacity>
   );
@@ -193,6 +220,11 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 10,
   },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
@@ -222,9 +254,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
-  },
-  quickLinkIcon: {
-    fontSize: 28,
   },
   quickLinkText: {
     fontSize: 13,

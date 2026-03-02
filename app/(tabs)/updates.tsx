@@ -1,6 +1,7 @@
 import { UpdateCard } from "@/components/update-card";
 import { CHURCH_UPDATES } from "@/constants/church-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
     ScrollView,
@@ -124,7 +125,8 @@ export default function UpdatesScreen() {
           ]}
         >
           <Text style={[styles.notificationTitle, { color: t.text }]}>
-            🔔 Enable Notifications
+            <Ionicons name="notifications" size={18} color={t.tint} /> Enable
+            Notifications
           </Text>
           <Text style={[styles.notificationText, { color: t.textSecondary }]}>
             Never miss an important update! Turn on notifications to receive
@@ -154,7 +156,7 @@ export default function UpdatesScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={styles.contactIcon}>📞</Text>
+            <Ionicons name="call" size={24} color={t.tint} />
             <View style={styles.contactInfo}>
               <Text style={[styles.contactLabel, { color: t.text }]}>
                 Phone
@@ -171,7 +173,7 @@ export default function UpdatesScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={styles.contactIcon}>📧</Text>
+            <Ionicons name="mail" size={24} color={t.tint} />
             <View style={styles.contactInfo}>
               <Text style={[styles.contactLabel, { color: t.text }]}>
                 Email
@@ -188,7 +190,7 @@ export default function UpdatesScreen() {
               { backgroundColor: t.cardBgElevated, borderColor: t.border },
             ]}
           >
-            <Text style={styles.contactIcon}>📍</Text>
+            <Ionicons name="location" size={24} color={t.tint} />
             <View style={styles.contactInfo}>
               <Text style={[styles.contactLabel, { color: t.text }]}>
                 Location
@@ -290,9 +292,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 14,
-  },
-  contactIcon: {
-    fontSize: 24,
   },
   contactInfo: {
     flex: 1,

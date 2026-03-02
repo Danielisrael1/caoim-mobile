@@ -1,22 +1,27 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewToken,
+    Animated,
+    Dimensions,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewToken,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+const CAOIM_LOGO = require("@/assets/images/caoim-logo.png");
+
 interface OnboardingPage {
   id: string;
-  emoji: string;
+  iconFamily: "ionicons" | "material" | "logo";
+  iconName: string;
   title: string;
   subtitle: string;
   description: string;
@@ -25,7 +30,8 @@ interface OnboardingPage {
 const PAGES: OnboardingPage[] = [
   {
     id: "1",
-    emoji: "⛪",
+    iconFamily: "logo",
+    iconName: "",
     title: "Welcome to\nCAOIM Church",
     subtitle: "Your faith community, always connected",
     description:
@@ -33,7 +39,8 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "2",
-    emoji: "📺",
+    iconFamily: "ionicons",
+    iconName: "videocam",
     title: "Watch Live\nServices",
     subtitle: "Stream from anywhere",
     description:
@@ -41,7 +48,8 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "3",
-    emoji: "📅",
+    iconFamily: "ionicons",
+    iconName: "calendar",
     title: "Discover\nEvents",
     subtitle: "Worship, study, and fellowship",
     description:
@@ -49,7 +57,8 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "4",
-    emoji: "🔔",
+    iconFamily: "ionicons",
+    iconName: "notifications",
     title: "Stay\nInformed",
     subtitle: "Never miss an update",
     description:
@@ -61,7 +70,9 @@ interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
-export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
+export default function OnboardingScreen({
+  onComplete,
+}: OnboardingScreenProps) {
   const t = useAppTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
@@ -74,10 +85,12 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
       if (viewableItems.length > 0 && viewableItems[0].index != null) {
         setCurrentIndex(viewableItems[0].index);
       }
-    }
+    },
   ).current;
 
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const viewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  }).current;
 
   const handleNext = () => {
     if (isLastPage) {
@@ -93,25 +106,50 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
 
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    { useNativeDriver: false }
+    { useNativeDriver: false },
   );
 
-  const renderPage = ({ item, index }: { item: OnboardingPage; index: number }) => {
+  const renderPage = ({
+    item,
+    index,
+  }: {
+    item: OnboardingPage;
+    index: number;
+  }) => {
     return (
       <View style={[styles.page, { width: SCREEN_WIDTH }]}>
-        {/* Decorative circle behind emoji */}
-        <View
-          style={[
-            styles.emojiCircle,
-            {
-              backgroundColor: t.isDark
-                ? "rgba(167, 143, 255, 0.12)"
-                : "rgba(107, 76, 230, 0.08)",
-            },
-          ]}
-        >
-          <Text style={styles.emoji}>{item.emoji}</Text>
-        </View>
+        {/* Logo or icon */}
+        {item.iconFamily === "logo" ? (
+          <View style={styles.logoContainer}>
+            <Image
+              source={CAOIM_LOGO}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={[styles.logoText, { color: t.tint }]}>CAOIM</Text>
+          </View>
+        ) : (
+          <View
+            style={[
+              styles.iconCircle,
+              {
+                backgroundColor: t.isDark
+                  ? "rgba(167, 143, 255, 0.12)"
+                  : "rgba(107, 76, 230, 0.08)",
+              },
+            ]}
+          >
+            {item.iconFamily === "material" ? (
+              <MaterialCommunityIcons
+                name={item.iconName as any}
+                size={60}
+                color={t.tint}
+              />
+            ) : (
+              <Ionicons name={item.iconName as any} size={60} color={t.tint} />
+            )}
+          </View>
+        )}
 
         <Text style={[styles.title, { color: t.text }]}>{item.title}</Text>
         <Text style={[styles.subtitle, { color: t.tint }]}>
@@ -241,8 +279,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
   },
-  emoji: {
-    fontSize: 64,
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  logoImage: {
+    width: 180,
+    height: 180,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: "900",
+    letterSpacing: 6,
+    marginTop: 8,
+  },
+  iconCircle: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 40,
   },
   title: {
     fontSize: 34,

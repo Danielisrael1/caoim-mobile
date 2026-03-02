@@ -1,15 +1,17 @@
+import BrandSplash from "@/components/brand-splash";
 import OnboardingScreen from "@/components/onboarding-screen";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, View } from "react-native";
+import { useState } from "react";
+import { View } from "react-native";
 import "react-native-reanimated";
 
 export const unstable_settings = {
@@ -19,9 +21,20 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { isLoading, isOnboarded, completeOnboarding } = useOnboarding();
+  const [showSplash, setShowSplash] = useState(true);
   const theme = Colors[colorScheme ?? "light"];
 
-  // Show loading spinner while checking onboarding state
+  // Show branded splash on every app launch
+  if (showSplash) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <BrandSplash onFinish={() => setShowSplash(false)} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Still loading onboarding state from storage
   if (isLoading) {
     return (
       <View
@@ -31,9 +44,7 @@ export default function RootLayout() {
           alignItems: "center",
           backgroundColor: theme.background,
         }}
-      >
-        <ActivityIndicator size="large" color={theme.tint} />
-      </View>
+      />
     );
   }
 
