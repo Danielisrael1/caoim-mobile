@@ -1,7 +1,14 @@
 import { LiveStream } from "@/constants/church-data";
 import { Colors, Fonts } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Image,
+    ImageSourcePropType,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { IconSymbol } from "./ui/icon-symbol";

@@ -1,5 +1,5 @@
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { Fonts } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useEffect, useRef } from "react";
 import { Animated, Image, StyleSheet, Text, View } from "react-native";
 

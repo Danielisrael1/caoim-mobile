@@ -1,10 +1,10 @@
+import { BottomFade } from "@/components/bottom-fade";
 import {
-    CHURCH_EVENTS,
-    CHURCH_UPDATES,
-    LIVE_STREAMS,
+  CHURCH_EVENTS,
+  CHURCH_UPDATES,
+  LIVE_STREAMS,
 } from "@/constants/church-data";
 import { Fonts } from "@/constants/theme";
-import { BottomFade } from "@/components/bottom-fade";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 import { useUser } from "@/hooks/use-user";
@@ -12,12 +12,12 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
 import {
-    Animated,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 

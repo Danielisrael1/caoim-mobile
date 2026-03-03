@@ -98,7 +98,11 @@ type SermonFilter = "all" | "video" | "audio";
 type BibleFilter = "all" | "old" | "new";
 type BibleVersion = "NIV" | "NKJV" | "Luganda";
 
-const BIBLE_VERSIONS: { id: BibleVersion; label: string; description: string }[] = [
+const BIBLE_VERSIONS: {
+  id: BibleVersion;
+  label: string;
+  description: string;
+}[] = [
   { id: "NIV", label: "NIV", description: "New International Version" },
   { id: "NKJV", label: "NKJV", description: "New King James Version" },
   { id: "Luganda", label: "Luganda", description: "Luganda Bible" },
@@ -305,8 +309,7 @@ export default function MediaScreen() {
                       {
                         backgroundColor:
                           bibleVersion === v.id ? t.tint : t.cardBg,
-                        borderColor:
-                          bibleVersion === v.id ? t.tint : t.border,
+                        borderColor: bibleVersion === v.id ? t.tint : t.border,
                       },
                     ]}
                   >

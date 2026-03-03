@@ -4,13 +4,13 @@ import { Colors } from "@/constants/theme";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
 import {
-  Poppins_400Regular,
-  Poppins_400Regular_Italic,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  Poppins_800ExtraBold,
-  Poppins_900Black,
+    Poppins_400Regular,
+    Poppins_400Regular_Italic,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
 } from "@expo-google-fonts/poppins";
 import {
     DarkTheme,

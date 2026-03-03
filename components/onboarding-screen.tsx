@@ -1,5 +1,5 @@
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { Fonts } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import React, { useRef, useState } from "react";
 import {
     Animated,
