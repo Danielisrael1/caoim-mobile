@@ -1,13 +1,14 @@
 import { Tabs } from "expo-router";
 import React from "react";
+import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useThemeToggle } from "@/hooks/use-theme-toggle";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useThemeToggle();
   const theme = Colors[colorScheme ?? "light"];
 
   return (
@@ -18,11 +19,31 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: theme.cardBg,
-          borderTopColor: theme.border,
-          borderTopWidth: 1,
-          elevation: 0,
-          shadowOpacity: 0,
+          position: "absolute",
+          bottom: Platform.OS === "ios" ? 24 : 16,
+          left: 20,
+          right: 20,
+          height: 64,
+          backgroundColor: theme.tabBarBg,
+          borderRadius: 32,
+          borderTopWidth: 0,
+          borderWidth: 1,
+          borderColor: theme.tabBarBorder,
+          elevation: 12,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.12,
+          shadowRadius: 16,
+          paddingBottom: 0,
+          paddingHorizontal: 8,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 2,
         },
       }}
     >
@@ -31,7 +52,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={24} name="house.fill" color={color} />
           ),
         }}
       />
@@ -40,7 +61,7 @@ export default function TabLayout() {
         options={{
           title: "Live",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="video.fill" color={color} />
+            <IconSymbol size={24} name="video.fill" color={color} />
           ),
         }}
       />
@@ -49,16 +70,16 @@ export default function TabLayout() {
         options={{
           title: "Events",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="calendar" color={color} />
+            <IconSymbol size={24} name="calendar" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="updates"
         options={{
-          title: "Updates",
+          title: "Media",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="bell.fill" color={color} />
+            <IconSymbol size={24} name="play.circle.fill" color={color} />
           ),
         }}
       />

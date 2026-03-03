@@ -1,58 +1,72 @@
 /**
  * CAOIM Church — Color System
- * Fully themed for light & dark modes.
+ * Warm, modern bento-style palette for light & dark modes.
  */
 
 import { Platform } from "react-native";
 
-// CAOIM Church Color Palette
-const tintColorLight = "#6B4CE6";
-const tintColorDark = "#A78FFF";
+// CAOIM Church Color Palette — warm amber / deep purple
+const tintColorLight = "#E8842C";
+const tintColorDark = "#F5A623";
 
 export const Colors = {
   light: {
-    text: "#1A1A2E",
-    textSecondary: "#64648C",
-    background: "#F5F3FF",
+    text: "#1C1917",
+    textSecondary: "#78716C",
+    background: "#FFF8F0",
     tint: tintColorLight,
-    icon: "#6B4CE6",
-    tabIconDefault: "#9D9DB0",
+    icon: "#E8842C",
+    tabIconDefault: "#A8A29E",
     tabIconSelected: tintColorLight,
-    accent: "#FF6B9D",
+    accent: "#6B4CE6",
     success: "#10B981",
     warning: "#F59E0B",
     error: "#EF4444",
-    secondary: "#8B7BA8",
+    secondary: "#D97706",
     cardBg: "#FFFFFF",
-    cardBgElevated: "#F0ECFF",
-    border: "#E5E1F5",
-    filterBg: "#EDE9FE",
+    cardBgElevated: "#FFF1E0",
+    border: "#F5E6D3",
+    filterBg: "#FFF1E0",
     filterActiveBg: tintColorLight,
     buttonBg: tintColorLight,
     buttonText: "#FFFFFF",
-    overlay: "rgba(107, 76, 230, 0.06)",
+    overlay: "rgba(232, 132, 44, 0.06)",
+    bentoLarge: "#FDE8D0",
+    bentoMedium: "#FFF1E0",
+    bentoSmall: "#FFFFFF",
+    bentoAccent: "#6B4CE6",
+    greeting: "#E8842C",
+    tabBarBg: "#FFFFFF",
+    tabBarBorder: "#F5E6D3",
   },
   dark: {
-    text: "#F0EFF4",
-    textSecondary: "#9D9DB0",
-    background: "#0D0C18",
+    text: "#FAFAF9",
+    textSecondary: "#A8A29E",
+    background: "#0C0A09",
     tint: tintColorDark,
-    icon: "#A78FFF",
+    icon: "#F5A623",
     tabIconDefault: "#6B7280",
     tabIconSelected: tintColorDark,
-    accent: "#FF6B9D",
+    accent: "#A78FFF",
     success: "#34D399",
     warning: "#FBBF24",
     error: "#F87171",
-    secondary: "#9F7AEA",
-    cardBg: "#1A1930",
-    cardBgElevated: "#252442",
-    border: "#2E2D4A",
-    filterBg: "#252442",
+    secondary: "#F5A623",
+    cardBg: "#1C1917",
+    cardBgElevated: "#292524",
+    border: "#3D3530",
+    filterBg: "#292524",
     filterActiveBg: tintColorDark,
     buttonBg: tintColorDark,
-    buttonText: "#0D0C18",
-    overlay: "rgba(167, 143, 255, 0.08)",
+    buttonText: "#0C0A09",
+    overlay: "rgba(245, 166, 35, 0.08)",
+    bentoLarge: "#292524",
+    bentoMedium: "#1C1917",
+    bentoSmall: "#1C1917",
+    bentoAccent: "#A78FFF",
+    greeting: "#F5A623",
+    tabBarBg: "#1C1917",
+    tabBarBorder: "#3D3530",
   },
 };
 

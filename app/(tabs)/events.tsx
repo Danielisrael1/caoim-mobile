@@ -176,6 +176,9 @@ export default function EventsScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Bottom spacer for floating tab bar */}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

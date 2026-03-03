@@ -113,6 +113,9 @@ export default function LiveStreamScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Bottom spacer for floating tab bar */}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

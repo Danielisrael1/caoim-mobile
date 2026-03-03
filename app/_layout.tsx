@@ -1,8 +1,8 @@
 import BrandSplash from "@/components/brand-splash";
 import OnboardingScreen from "@/components/onboarding-screen";
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
 import {
     DarkTheme,
     DefaultTheme,
@@ -18,8 +18,8 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootInner() {
+  const { colorScheme } = useThemeToggle();
   const { isLoading, isOnboarded, completeOnboarding } = useOnboarding();
   const [showSplash, setShowSplash] = useState(true);
   const theme = Colors[colorScheme ?? "light"];
@@ -66,8 +66,20 @@ export default function RootLayout() {
           name="modal"
           options={{ presentation: "modal", title: "Modal" }}
         />
+        <Stack.Screen
+          name="giving"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeToggleProvider>
+      <RootInner />
+    </ThemeToggleProvider>
   );
 }

@@ -1,27 +1,30 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
 import {
     Animated,
     Dimensions,
     FlatList,
     Image,
+    ImageSourcePropType,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
     ViewToken,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const CAOIM_LOGO = require("@/assets/images/caoim-logo.png");
+const PAGE_IMAGES: ImageSourcePropType[] = [
+  require("@/assets/images/p1.jpg"),
+  require("@/assets/images/p2.jpg"),
+  require("@/assets/images/p3.jpg"),
+  require("@/assets/images/p4.jpg"),
+];
 
 interface OnboardingPage {
   id: string;
-  iconFamily: "ionicons" | "material" | "logo";
-  iconName: string;
+  image: ImageSourcePropType;
   title: string;
   subtitle: string;
   description: string;
@@ -30,8 +33,7 @@ interface OnboardingPage {
 const PAGES: OnboardingPage[] = [
   {
     id: "1",
-    iconFamily: "logo",
-    iconName: "",
+    image: PAGE_IMAGES[0],
     title: "Welcome to\nCAOIM Church",
     subtitle: "Your faith community, always connected",
     description:
@@ -39,8 +41,7 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "2",
-    iconFamily: "ionicons",
-    iconName: "videocam",
+    image: PAGE_IMAGES[1],
     title: "Watch Live\nServices",
     subtitle: "Stream from anywhere",
     description:
@@ -48,8 +49,7 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "3",
-    iconFamily: "ionicons",
-    iconName: "calendar",
+    image: PAGE_IMAGES[2],
     title: "Discover\nEvents",
     subtitle: "Worship, study, and fellowship",
     description:
@@ -57,8 +57,7 @@ const PAGES: OnboardingPage[] = [
   },
   {
     id: "4",
-    iconFamily: "ionicons",
-    iconName: "notifications",
+    image: PAGE_IMAGES[3],
     title: "Stay\nInformed",
     subtitle: "Never miss an update",
     description:
@@ -118,58 +117,29 @@ export default function OnboardingScreen({
   }) => {
     return (
       <View style={[styles.page, { width: SCREEN_WIDTH }]}>
-        {/* Logo or icon */}
-        {item.iconFamily === "logo" ? (
-          <View style={styles.logoContainer}>
-            <Image
-              source={CAOIM_LOGO}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-            <Text style={[styles.logoText, { color: t.tint }]}>CAOIM</Text>
-          </View>
-        ) : (
-          <View
-            style={[
-              styles.iconCircle,
-              {
-                backgroundColor: t.isDark
-                  ? "rgba(167, 143, 255, 0.12)"
-                  : "rgba(107, 76, 230, 0.08)",
-              },
-            ]}
-          >
-            {item.iconFamily === "material" ? (
-              <MaterialCommunityIcons
-                name={item.iconName as any}
-                size={60}
-                color={t.tint}
-              />
-            ) : (
-              <Ionicons name={item.iconName as any} size={60} color={t.tint} />
-            )}
-          </View>
-        )}
+        {/* Background Image */}
+        <Image source={item.image} style={styles.bgImage} resizeMode="cover" />
+        {/* Dark gradient overlay for readability */}
+        <View style={styles.overlay} />
 
-        <Text style={[styles.title, { color: t.text }]}>{item.title}</Text>
-        <Text style={[styles.subtitle, { color: t.tint }]}>
-          {item.subtitle}
-        </Text>
-        <Text style={[styles.description, { color: t.textSecondary }]}>
-          {item.description}
-        </Text>
+        {/* Content at the bottom */}
+        <View style={styles.pageContent}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={[styles.subtitle, { color: t.tint }]}>
+            {item.subtitle}
+          </Text>
+          <Text style={styles.description}>{item.description}</Text>
+        </View>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: t.background }]}>
+    <View style={styles.container}>
       {/* Skip button */}
       {!isLastPage && (
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={[styles.skipText, { color: t.textSecondary }]}>
-            Skip
-          </Text>
+          <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       )}
 
@@ -189,7 +159,7 @@ export default function OnboardingScreen({
         viewabilityConfig={viewabilityConfig}
       />
 
-      {/* Bottom section */}
+      {/* Bottom section (over the image) */}
       <View style={styles.bottomSection}>
         {/* Pagination dots */}
         <View style={styles.pagination}>
@@ -220,7 +190,7 @@ export default function OnboardingScreen({
                   {
                     width: dotWidth,
                     opacity: dotOpacity,
-                    backgroundColor: t.tint,
+                    backgroundColor: "#FFF",
                   },
                 ]}
               />
@@ -230,27 +200,28 @@ export default function OnboardingScreen({
 
         {/* Action button */}
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: t.buttonBg }]}
+          style={[styles.button, { backgroundColor: t.tint }]}
           onPress={handleNext}
           activeOpacity={0.85}
         >
-          <Text style={[styles.buttonText, { color: t.buttonText }]}>
+          <Text style={styles.buttonText}>
             {isLastPage ? "Get Started" : "Next"}
           </Text>
         </TouchableOpacity>
 
         {/* Page counter */}
-        <Text style={[styles.pageCounter, { color: t.textSecondary }]}>
+        <Text style={styles.pageCounter}>
           {currentIndex + 1} of {PAGES.length}
         </Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#000",
   },
   skipButton: {
     position: "absolute",
@@ -259,74 +230,59 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingVertical: 8,
     paddingHorizontal: 16,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 20,
   },
   skipText: {
     fontSize: 15,
     fontWeight: "600",
+    color: "#FFF",
   },
   page: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 40,
-    paddingBottom: 60,
+    justifyContent: "flex-end",
   },
-  emojiCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 40,
+  bgImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 32,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
-  logoImage: {
-    width: 180,
-    height: 180,
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: "900",
-    letterSpacing: 6,
-    marginTop: 8,
-  },
-  iconCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 40,
+  pageContent: {
+    paddingHorizontal: 32,
+    paddingBottom: 180,
   },
   title: {
-    fontSize: 34,
+    fontSize: 36,
     fontWeight: "800",
-    textAlign: "center",
-    lineHeight: 42,
+    color: "#FFF",
+    lineHeight: 44,
     letterSpacing: -0.5,
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
     fontWeight: "600",
-    textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 14,
     letterSpacing: 0.3,
   },
   description: {
     fontSize: 15,
-    textAlign: "center",
+    color: "rgba(255,255,255,0.8)",
     lineHeight: 24,
-    paddingHorizontal: 8,
   },
   bottomSection: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 32,
-    paddingBottom: 24,
+    paddingBottom: 50,
     alignItems: "center",
-    gap: 20,
+    gap: 18,
   },
   pagination: {
     flexDirection: "row",
@@ -342,9 +298,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
-    shadowColor: "#6B4CE6",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -352,9 +308,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: 0.3,
+    color: "#FFF",
   },
   pageCounter: {
     fontSize: 13,
     fontWeight: "500",
+    color: "rgba(255,255,255,0.6)",
   },
 });

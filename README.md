@@ -1,20 +1,19 @@
-# Welcome to your Expo app 👋
+# CAOIM Church — Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> **Christ The Alpha & Omega Int'l Ministries**
+> A React Native / Expo app for connecting the CAOIM church community.
 
-## Get started
+For full feature documentation, architecture details, and roadmap see **[CHURCH_APP_README.md](./CHURCH_APP_README.md)**.
 
-1. Install dependencies
+## Quick Start
 
-   ```bash
-   npm install
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
+# Start the Expo dev server
+npx expo start
+```
 
 In the output, you'll find options to open the app in a
 
