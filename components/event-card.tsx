@@ -3,7 +3,7 @@ import {
     getCategoryColor,
     getCategoryIcon,
 } from "@/constants/church-data";
-import { Colors } from "@/constants/theme";
+import { Colors, Fonts } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./themed-text";
@@ -43,7 +43,7 @@ export function EventCard({ event, onPress }: EventCardProps) {
             style={[
               styles.dateSection,
               {
-                backgroundColor: colorScheme === "dark" ? "#2D2B42" : "#F0E8FF",
+                backgroundColor: colorScheme === "dark" ? "#1E2D50" : "#D4E6F1",
               },
             ]}
           >
@@ -99,7 +99,7 @@ export function EventCard({ event, onPress }: EventCardProps) {
                 <IconSymbol
                   name="clock"
                   size={14}
-                  color={colorScheme === "dark" ? "#9D9DB0" : "#6B4CE6"}
+                  color={colorScheme === "dark" ? "#94C2DA" : "#203F9A"}
                 />
                 <ThemedText style={styles.infoText}>
                   {event.startTime}
@@ -110,7 +110,7 @@ export function EventCard({ event, onPress }: EventCardProps) {
                 <IconSymbol
                   name="location.fill"
                   size={14}
-                  color={colorScheme === "dark" ? "#9D9DB0" : "#6B4CE6"}
+                  color={colorScheme === "dark" ? "#94C2DA" : "#203F9A"}
                 />
                 <ThemedText style={styles.infoText} numberOfLines={1}>
                   {event.location}
@@ -125,7 +125,7 @@ export function EventCard({ event, onPress }: EventCardProps) {
                     styles.capacityBar,
                     {
                       backgroundColor:
-                        colorScheme === "dark" ? "#2D2B42" : "#E5E1F5",
+                        colorScheme === "dark" ? "#1E2D50" : "#D4E6F1",
                     },
                   ]}
                 >
@@ -186,12 +186,14 @@ const styles = StyleSheet.create({
   dateMonth: {
     fontSize: 11,
     fontWeight: "700",
+    fontFamily: Fonts.bold,
     color: "#666",
     letterSpacing: 0.5,
   },
   dateDay: {
     fontSize: 24,
     fontWeight: "700",
+    fontFamily: Fonts.bold,
     color: "#333",
     marginTop: 2,
   },
@@ -209,6 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
   categoryBadge: {
     width: 28,
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
+    fontFamily: Fonts.regular,
   },
   capacitySection: {
     marginTop: 8,
@@ -244,9 +248,11 @@ const styles = StyleSheet.create({
   },
   capacityText: {
     fontSize: 11,
+    fontFamily: Fonts.regular,
   },
   description: {
     fontSize: 13,
+    fontFamily: Fonts.regular,
     lineHeight: 18,
     marginTop: 8,
   },

@@ -4,14 +4,24 @@ import { Colors } from "@/constants/theme";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
 import {
+  Poppins_400Regular,
+  Poppins_400Regular_Italic,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+  Poppins_900Black,
+} from "@expo-google-fonts/poppins";
+import {
     DarkTheme,
     DefaultTheme,
     ThemeProvider,
 } from "@react-navigation/native";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
 
 export const unstable_settings = {
@@ -23,6 +33,32 @@ function RootInner() {
   const { isLoading, isOnboarded, completeOnboarding } = useOnboarding();
   const [showSplash, setShowSplash] = useState(true);
   const theme = Colors[colorScheme ?? "light"];
+
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_400Regular_Italic,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
+  });
+
+  // Wait for fonts
+  if (!fontsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.tint} />
+      </View>
+    );
+  }
 
   // Show branded splash on every app launch
   if (showSplash) {

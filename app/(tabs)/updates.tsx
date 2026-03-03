@@ -1,3 +1,5 @@
+import { BottomFade } from "@/components/bottom-fade";
+import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -94,12 +96,20 @@ const BIBLE_BOOKS: BibleBook[] = [
 type Tab = "sermons" | "bible";
 type SermonFilter = "all" | "video" | "audio";
 type BibleFilter = "all" | "old" | "new";
+type BibleVersion = "NIV" | "NKJV" | "Luganda";
+
+const BIBLE_VERSIONS: { id: BibleVersion; label: string; description: string }[] = [
+  { id: "NIV", label: "NIV", description: "New International Version" },
+  { id: "NKJV", label: "NKJV", description: "New King James Version" },
+  { id: "Luganda", label: "Luganda", description: "Luganda Bible" },
+];
 
 export default function MediaScreen() {
   const t = useAppTheme();
   const [activeTab, setActiveTab] = useState<Tab>("sermons");
   const [sermonFilter, setSermonFilter] = useState<SermonFilter>("all");
   const [bibleFilter, setBibleFilter] = useState<BibleFilter>("all");
+  const [bibleVersion, setBibleVersion] = useState<BibleVersion>("NIV");
 
   const filteredSermons =
     sermonFilter === "all"
@@ -116,7 +126,10 @@ export default function MediaScreen() {
       style={{ flex: 1, backgroundColor: t.background }}
       edges={["top"]}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
         {/* Header */}
         <View style={styles.headerSection}>
           <Text style={[styles.headerTitle, { color: t.text }]}>Media</Text>
@@ -224,11 +237,11 @@ export default function MediaScreen() {
                         backgroundColor:
                           sermon.type === "video"
                             ? t.isDark
-                              ? "rgba(245,166,35,0.12)"
-                              : "#FFF1E0"
+                              ? "rgba(148,194,218,0.12)"
+                              : "#D4E6F1"
                             : t.isDark
-                              ? "rgba(107,76,230,0.12)"
-                              : "#EDE9FE",
+                              ? "rgba(232,71,151,0.12)"
+                              : "#F8D7EA",
                       },
                     ]}
                   >
@@ -277,6 +290,44 @@ export default function MediaScreen() {
           </>
         ) : (
           <>
+            {/* Bible Version Selector */}
+            <View style={styles.versionSection}>
+              <Text style={[styles.versionLabel, { color: t.text }]}>
+                Version
+              </Text>
+              <View style={styles.versionRow}>
+                {BIBLE_VERSIONS.map((v) => (
+                  <TouchableOpacity
+                    key={v.id}
+                    onPress={() => setBibleVersion(v.id)}
+                    style={[
+                      styles.versionPill,
+                      {
+                        backgroundColor:
+                          bibleVersion === v.id ? t.tint : t.cardBg,
+                        borderColor:
+                          bibleVersion === v.id ? t.tint : t.border,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.versionPillText,
+                        {
+                          color: bibleVersion === v.id ? "#FFF" : t.text,
+                        },
+                      ]}
+                    >
+                      {v.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={[styles.versionDesc, { color: t.textSecondary }]}>
+                {BIBLE_VERSIONS.find((v) => v.id === bibleVersion)?.description}
+              </Text>
+            </View>
+
             {/* Bible Filters */}
             <View style={styles.filterRow}>
               {(["all", "old", "new"] as BibleFilter[]).map((f) => (
@@ -342,10 +393,8 @@ export default function MediaScreen() {
             </View>
           </>
         )}
-
-        {/* Bottom spacer for floating tab bar */}
-        <View style={{ height: 100 }} />
       </ScrollView>
+      <BottomFade />
     </SafeAreaView>
   );
 }
@@ -358,11 +407,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: Fonts.regular,
   },
 
   /* Tab switcher */
@@ -384,7 +434,38 @@ const styles = StyleSheet.create({
   },
   tabButtonText: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
+  },
+
+  /* Bible version selector */
+  versionSection: {
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  versionLabel: {
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+    marginBottom: 8,
+  },
+  versionRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  versionPill: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  versionPillText: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
+  },
+  versionDesc: {
+    fontSize: 12,
+    fontFamily: Fonts.regular,
+    marginTop: 8,
+    fontStyle: "italic",
   },
 
   /* Filters */
@@ -401,7 +482,7 @@ const styles = StyleSheet.create({
   },
   filterPillText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
 
   /* Sermon list */
@@ -429,15 +510,16 @@ const styles = StyleSheet.create({
   },
   sermonTitle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   sermonMeta: {
     fontSize: 12,
+    fontFamily: Fonts.regular,
     marginTop: 2,
   },
   sermonSeries: {
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
     marginTop: 3,
   },
   sermonRight: {
@@ -446,7 +528,7 @@ const styles = StyleSheet.create({
   },
   sermonDuration: {
     fontSize: 11,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
   },
 
   /* Bible grid */
@@ -465,9 +547,10 @@ const styles = StyleSheet.create({
   },
   bibleBookName: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   bibleChapters: {
     fontSize: 12,
+    fontFamily: Fonts.regular,
   },
 });

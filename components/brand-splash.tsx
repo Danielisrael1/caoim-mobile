@@ -1,4 +1,5 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Fonts } from "@/constants/theme";
 import { useEffect, useRef } from "react";
 import { Animated, Image, StyleSheet, Text, View } from "react-native";
 
@@ -81,13 +82,13 @@ const styles = StyleSheet.create({
   },
   brandName: {
     fontSize: 38,
-    fontWeight: "900",
+    fontFamily: Fonts.black,
     letterSpacing: 8,
     marginTop: 12,
   },
   tagline: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
     marginTop: 8,
     letterSpacing: 0.5,
     textAlign: "center",

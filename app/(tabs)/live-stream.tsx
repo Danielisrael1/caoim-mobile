@@ -1,5 +1,7 @@
+import { BottomFade } from "@/components/bottom-fade";
 import { LiveStreamCard } from "@/components/live-stream-card";
 import { LIVE_STREAMS } from "@/constants/church-data";
+import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -16,7 +18,10 @@ export default function LiveStreamScreen() {
       style={{ flex: 1, backgroundColor: t.background }}
       edges={["top"]}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
         {/* Header */}
         <View style={styles.headerSection}>
           <Text style={[styles.headerTitle, { color: t.text }]}>
@@ -113,10 +118,8 @@ export default function LiveStreamScreen() {
             </Text>
           </View>
         </View>
-
-        {/* Bottom spacer for floating tab bar */}
-        <View style={{ height: 100 }} />
       </ScrollView>
+      <BottomFade />
     </SafeAreaView>
   );
 }
@@ -129,11 +132,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: Fonts.regular,
   },
   sectionContainer: {
     paddingHorizontal: 16,
@@ -147,13 +151,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   liveDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#E84797",
   },
   infoSection: {
     paddingHorizontal: 16,
@@ -172,11 +176,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   infoTitle: {
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
     fontSize: 16,
   },
   infoText: {
     fontSize: 13,
+    fontFamily: Fonts.regular,
     lineHeight: 20,
   },
 });

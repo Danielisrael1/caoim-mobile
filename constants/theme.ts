@@ -1,97 +1,85 @@
 /**
  * CAOIM Church — Color System
- * Warm, modern bento-style palette for light & dark modes.
+ * Bold blue & pink palette with soft pastels for light & dark modes.
  */
 
-import { Platform } from "react-native";
-
-// CAOIM Church Color Palette — warm amber / deep purple
-const tintColorLight = "#E8842C";
-const tintColorDark = "#F5A623";
+// CAOIM Church Color Palette — bold blue / vibrant pink
+const tintColorLight = "#203F9A"; // Bold Blue
+const tintColorDark = "#94C2DA"; // Pastel Blue
 
 export const Colors = {
   light: {
-    text: "#1C1917",
-    textSecondary: "#78716C",
-    background: "#FFF8F0",
+    text: "#1A1A2E",
+    textSecondary: "#6B7494",
+    background: "#EFE8E0", // Light Beige
     tint: tintColorLight,
-    icon: "#E8842C",
-    tabIconDefault: "#A8A29E",
+    icon: "#203F9A",
+    tabIconDefault: "#9CA3AF",
     tabIconSelected: tintColorLight,
-    accent: "#6B4CE6",
+    accent: "#E84797", // Bold Pink
     success: "#10B981",
     warning: "#F59E0B",
     error: "#EF4444",
-    secondary: "#D97706",
+    secondary: "#4E7CB2", // Muted Blue
     cardBg: "#FFFFFF",
-    cardBgElevated: "#FFF1E0",
-    border: "#F5E6D3",
-    filterBg: "#FFF1E0",
+    cardBgElevated: "#F5F0EB",
+    border: "#DDD5CC",
+    filterBg: "#F5F0EB",
     filterActiveBg: tintColorLight,
-    buttonBg: tintColorLight,
+    buttonBg: "#E84797", // Pink CTA
     buttonText: "#FFFFFF",
-    overlay: "rgba(232, 132, 44, 0.06)",
-    bentoLarge: "#FDE8D0",
-    bentoMedium: "#FFF1E0",
+    overlay: "rgba(32, 63, 154, 0.06)",
+    bentoLarge: "#D4E6F1", // Soft pastel blue cards
+    bentoMedium: "#F5F0EB", // Warm beige cards
     bentoSmall: "#FFFFFF",
-    bentoAccent: "#6B4CE6",
-    greeting: "#E8842C",
+    bentoAccent: "#E84797", // Pink accent
+    greeting: "#203F9A",
     tabBarBg: "#FFFFFF",
-    tabBarBorder: "#F5E6D3",
+    tabBarBorder: "#DDD5CC",
+    pastelPink: "#E7A0CC", // Pastel Pink
+    pastelBlue: "#94C2DA", // Pastel Blue
+    mutedBlue: "#4E7CB2", // Muted Blue
   },
   dark: {
-    text: "#FAFAF9",
-    textSecondary: "#A8A29E",
-    background: "#0C0A09",
+    text: "#F5F0EB",
+    textSecondary: "#A0AEC0",
+    background: "#0F1629", // Deep navy
     tint: tintColorDark,
-    icon: "#F5A623",
+    icon: "#94C2DA",
     tabIconDefault: "#6B7280",
     tabIconSelected: tintColorDark,
-    accent: "#A78FFF",
+    accent: "#E7A0CC", // Pastel Pink
     success: "#34D399",
     warning: "#FBBF24",
     error: "#F87171",
-    secondary: "#F5A623",
-    cardBg: "#1C1917",
-    cardBgElevated: "#292524",
-    border: "#3D3530",
-    filterBg: "#292524",
+    secondary: "#94C2DA",
+    cardBg: "#1A2340", // Dark navy card
+    cardBgElevated: "#222E4A",
+    border: "#2D3A5C",
+    filterBg: "#1A2340",
     filterActiveBg: tintColorDark,
-    buttonBg: tintColorDark,
-    buttonText: "#0C0A09",
-    overlay: "rgba(245, 166, 35, 0.08)",
-    bentoLarge: "#292524",
-    bentoMedium: "#1C1917",
-    bentoSmall: "#1C1917",
-    bentoAccent: "#A78FFF",
-    greeting: "#F5A623",
-    tabBarBg: "#1C1917",
-    tabBarBorder: "#3D3530",
+    buttonBg: "#E84797", // Pink CTA
+    buttonText: "#FFFFFF",
+    overlay: "rgba(148, 194, 218, 0.08)",
+    bentoLarge: "#1E2D50",
+    bentoMedium: "#1A2340",
+    bentoSmall: "#1A2340",
+    bentoAccent: "#E7A0CC", // Pastel Pink accent
+    greeting: "#94C2DA",
+    tabBarBg: "#1A2340",
+    tabBarBorder: "#2D3A5C",
+    pastelPink: "#E7A0CC",
+    pastelBlue: "#94C2DA",
+    mutedBlue: "#4E7CB2",
   },
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: "system-ui",
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: "ui-serif",
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: "ui-rounded",
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: "ui-monospace",
-  },
-  default: {
-    sans: "normal",
-    serif: "serif",
-    rounded: "normal",
-    mono: "monospace",
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded:
-      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const Fonts = {
+  regular: "Poppins_400Regular",
+  medium: "Poppins_500Medium",
+  semiBold: "Poppins_600SemiBold",
+  bold: "Poppins_700Bold",
+  extraBold: "Poppins_800ExtraBold",
+  black: "Poppins_900Black",
+  italic: "Poppins_400Regular_Italic",
+};

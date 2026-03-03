@@ -1,4 +1,5 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Fonts } from "@/constants/theme";
 import React, { useRef, useState } from "react";
 import {
     Animated,
@@ -236,6 +237,7 @@ const styles = StyleSheet.create({
   skipText: {
     fontSize: 15,
     fontWeight: "600",
+    fontFamily: Fonts.semiBold,
     color: "#FFF",
   },
   page: {
@@ -258,6 +260,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     color: "#FFF",
     lineHeight: 44,
     letterSpacing: -0.5,
@@ -266,11 +269,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: Fonts.semiBold,
     marginBottom: 14,
     letterSpacing: 0.3,
   },
   description: {
     fontSize: 15,
+    fontFamily: Fonts.regular,
     color: "rgba(255,255,255,0.8)",
     lineHeight: 24,
   },
@@ -307,12 +312,14 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 17,
     fontWeight: "700",
+    fontFamily: Fonts.bold,
     letterSpacing: 0.3,
     color: "#FFF",
   },
   pageCounter: {
     fontSize: 13,
     fontWeight: "500",
+    fontFamily: Fonts.medium,
     color: "rgba(255,255,255,0.6)",
   },
 });

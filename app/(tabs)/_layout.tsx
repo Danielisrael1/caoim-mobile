@@ -1,3 +1,4 @@
+import { Fonts } from "@/constants/theme";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
@@ -42,7 +43,7 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: "600",
+          fontFamily: Fonts.semiBold,
           marginTop: 2,
         },
       }}

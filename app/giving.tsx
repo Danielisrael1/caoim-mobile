@@ -1,4 +1,5 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { Fonts } from "@/constants/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -102,12 +103,16 @@ export default function GivingScreen() {
                 styles.heroIcon,
                 {
                   backgroundColor: t.isDark
-                    ? "rgba(239,68,68,0.12)"
-                    : "#FEE2E2",
+                    ? "rgba(232,71,151,0.12)"
+                    : "#F8D7EA",
                 },
               ]}
             >
-              <Ionicons name="heart" size={36} color="#EF4444" />
+              <Ionicons
+                name="heart"
+                size={36}
+                color={(t as any).accent || "#E84797"}
+              />
             </View>
             <Text style={[styles.heroTitle, { color: t.text }]}>
               Give with a Cheerful Heart
@@ -339,7 +344,10 @@ export default function GivingScreen() {
           <TouchableOpacity
             activeOpacity={0.85}
             onPress={handleSubmit}
-            style={[styles.submitButton, { backgroundColor: t.tint }]}
+            style={[
+              styles.submitButton,
+              { backgroundColor: (t as any).accent || t.tint },
+            ]}
           >
             <Ionicons name="heart" size={20} color="#FFF" />
             <Text style={styles.submitButtonText}>
@@ -384,7 +392,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
 
   /* Hero */
@@ -403,15 +411,15 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 24,
-    fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     textAlign: "center",
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 13,
+    fontFamily: Fonts.italic,
     textAlign: "center",
     lineHeight: 20,
-    fontStyle: "italic",
   },
 
   /* Sections */
@@ -421,7 +429,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
     marginBottom: 12,
   },
 
@@ -437,7 +445,7 @@ const styles = StyleSheet.create({
   },
   typePillText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
 
   /* Amount */
@@ -452,12 +460,12 @@ const styles = StyleSheet.create({
   },
   currencyLabel: {
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: Fonts.extraBold,
   },
   amountInput: {
     flex: 1,
     fontSize: 22,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   presets: {
     flexDirection: "row",
@@ -473,7 +481,7 @@ const styles = StyleSheet.create({
   },
   presetText: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
 
   /* Payment cards */
@@ -497,10 +505,11 @@ const styles = StyleSheet.create({
   },
   paymentName: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   paymentDesc: {
     fontSize: 12,
+    fontFamily: Fonts.regular,
     marginTop: 2,
   },
   radioOuter: {
@@ -529,12 +538,12 @@ const styles = StyleSheet.create({
   },
   phonePrefix: {
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   phoneInput: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
 
   /* Submit */
@@ -554,7 +563,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 17,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
     color: "#FFF",
   },
 
@@ -568,6 +577,6 @@ const styles = StyleSheet.create({
   },
   secureNoteText: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
   },
 });

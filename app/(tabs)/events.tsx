@@ -1,5 +1,7 @@
+import { BottomFade } from "@/components/bottom-fade";
 import { EventCard } from "@/components/event-card";
 import { CHURCH_EVENTS } from "@/constants/church-data";
+import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -178,8 +180,9 @@ export default function EventsScreen() {
         </View>
 
         {/* Bottom spacer for floating tab bar */}
-        <View style={{ height: 100 }} />
+        <View style={{ height: 110 }} />
       </ScrollView>
+      <BottomFade />
     </SafeAreaView>
   );
 }
@@ -193,10 +196,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: Fonts.regular,
   },
   filterSection: {
     marginVertical: 4,
@@ -214,6 +219,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 13,
     fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
   eventsContainer: {
     paddingHorizontal: 16,
@@ -225,6 +231,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 14,
+    fontFamily: Fonts.regular,
   },
   featuredSection: {
     paddingHorizontal: 16,
@@ -234,6 +241,7 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 18,
     fontWeight: "700",
+    fontFamily: Fonts.bold,
     marginBottom: 4,
   },
   featureCard: {
@@ -250,9 +258,11 @@ const styles = StyleSheet.create({
   featureHeading: {
     fontSize: 15,
     fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
   featureText: {
     fontSize: 13,
+    fontFamily: Fonts.regular,
     lineHeight: 20,
   },
 });

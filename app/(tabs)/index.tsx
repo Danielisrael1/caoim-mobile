@@ -3,6 +3,8 @@ import {
     CHURCH_UPDATES,
     LIVE_STREAMS,
 } from "@/constants/church-data";
+import { Fonts } from "@/constants/theme";
+import { BottomFade } from "@/components/bottom-fade";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 import { useUser } from "@/hooks/use-user";
@@ -56,6 +58,7 @@ export default function HomeScreen() {
           { useNativeDriver: true },
         )}
         scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* ── Header with greeting ── */}
         <Animated.View
@@ -112,7 +115,10 @@ export default function HomeScreen() {
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => router.push("/(tabs)/events")}
-          style={[styles.hymnBanner, { backgroundColor: t.tint }]}
+          style={[
+            styles.hymnBanner,
+            { backgroundColor: (t as any).accent || t.tint },
+          ]}
         >
           <View style={styles.hymnBannerContent}>
             <View style={styles.hymnBannerLeft}>
@@ -223,7 +229,13 @@ export default function HomeScreen() {
             <BentoCard
               title="Giving"
               subtitle="Tithes &amp; Offerings"
-              icon={<Ionicons name="heart" size={28} color="#EF4444" />}
+              icon={
+                <Ionicons
+                  name="heart"
+                  size={28}
+                  color={(t as any).accent || "#E84797"}
+                />
+              }
               bgColor={(t as any).bentoMedium}
               textColor={t.text}
               subtitleColor={t.textSecondary}
@@ -278,10 +290,8 @@ export default function HomeScreen() {
             </TouchableOpacity>
           )}
         </View>
-
-        {/* Bottom spacer for floating tab bar */}
-        <View style={{ height: 100 }} />
       </Animated.ScrollView>
+      <BottomFade />
     </SafeAreaView>
   );
 }
@@ -437,17 +447,17 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
   },
   userName: {
     fontSize: 28,
-    fontWeight: "800",
+    fontFamily: Fonts.extraBold,
     letterSpacing: -0.5,
     marginTop: 2,
   },
   tagline: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
     marginTop: 4,
   },
 
@@ -455,19 +465,20 @@ const styles = StyleSheet.create({
   hymnBanner: {
     marginHorizontal: 16,
     marginBottom: 16,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: "hidden",
   },
   hymnBannerContent: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 18,
-    gap: 14,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    gap: 16,
   },
   hymnBannerLeft: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     backgroundColor: "rgba(255,255,255,0.2)",
     justifyContent: "center",
     alignItems: "center",
@@ -477,21 +488,21 @@ const styles = StyleSheet.create({
   },
   hymnBannerLabel: {
     fontSize: 10,
-    fontWeight: "800",
+    fontFamily: Fonts.bold,
     color: "rgba(255,255,255,0.7)",
     letterSpacing: 1.2,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   hymnBannerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
+    fontSize: 24,
+    fontFamily: Fonts.extraBold,
     color: "#FFF",
   },
   hymnBannerSub: {
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: 13,
+    fontFamily: Fonts.medium,
     color: "rgba(255,255,255,0.8)",
-    marginTop: 2,
+    marginTop: 4,
   },
 
   /* Bento Grid */
@@ -524,20 +535,21 @@ const styles = StyleSheet.create({
   },
   bentoCardTitle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   bentoCardTitleWide: {
     fontSize: 17,
   },
   bentoCardSubtitle: {
     fontSize: 12,
+    fontFamily: Fonts.regular,
     marginTop: 4,
     lineHeight: 18,
   },
   liveBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEE2E2",
+    backgroundColor: "#F8D7EA",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -547,12 +559,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#EF4444",
+    backgroundColor: "#E84797",
   },
   liveBadgeText: {
     fontSize: 10,
-    fontWeight: "800",
-    color: "#EF4444",
+    fontFamily: Fonts.extraBold,
+    color: "#E84797",
     letterSpacing: 0.5,
   },
 
@@ -568,7 +580,7 @@ const styles = StyleSheet.create({
   },
   bentoCardSmallTitle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
   },
 
   /* Event highlight */
@@ -587,11 +599,11 @@ const styles = StyleSheet.create({
   },
   eventHighlightTitle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: Fonts.bold,
   },
   eventHighlightSub: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: Fonts.medium,
     marginTop: 2,
   },
 });

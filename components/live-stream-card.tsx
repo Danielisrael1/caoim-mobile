@@ -1,10 +1,24 @@
 import { LiveStream } from "@/constants/church-data";
-import { Colors } from "@/constants/theme";
+import { Colors, Fonts } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { IconSymbol } from "./ui/icon-symbol";
+
+/* ── Poster thumbnails for events ── */
+const THUMBNAILS: { [key: string]: ImageSourcePropType } = {
+  conference: require("@/assets/images/conference.jpg"),
+  upperroom: require("@/assets/images/upperroom.png"),
+  thanksgiving: require("@/assets/images/thanksgiving.png"),
+};
+
+/** Cycle through available posters by stream index */
+const THUMB_KEYS = Object.keys(THUMBNAILS);
+function getThumbnail(streamId: string): ImageSourcePropType {
+  const idx = (parseInt(streamId, 10) - 1) % THUMB_KEYS.length;
+  return THUMBNAILS[THUMB_KEYS[Math.abs(idx)]];
+}
 
 export interface LiveStreamCardProps {
   stream: LiveStream;
@@ -34,7 +48,12 @@ export function LiveStreamCard({ stream, onPress }: LiveStreamCardProps) {
         ]}
       >
         {/* Thumbnail area */}
-        <View style={[styles.thumbnail, stream.isLive && styles.thumbnailLive]}>
+        <View style={styles.thumbnail}>
+          <Image
+            source={getThumbnail(stream.id)}
+            style={styles.thumbnailImage}
+            resizeMode="cover"
+          />
           <View style={styles.overlay}>
             <IconSymbol name="play.circle.fill" size={48} color="white" />
           </View>
@@ -126,23 +145,29 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: "100%",
-    height: 180,
-    backgroundColor: "#333",
+    height: 200,
+    backgroundColor: "#1A2340",
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+    overflow: "hidden",
   },
-  thumbnailLive: {
-    backgroundColor: "#CC0000",
+  thumbnailImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
   },
   overlay: {
-    opacity: 0.9,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   liveBadge: {
     position: "absolute",
     top: 12,
     right: 12,
-    backgroundColor: "rgba(255, 0, 0, 0.9)",
+    backgroundColor: "rgba(232, 71, 151, 0.9)",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
@@ -184,11 +209,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: Fonts.semiBold,
     marginBottom: 8,
   },
   description: {
     fontSize: 13,
+    fontFamily: Fonts.regular,
     lineHeight: 18,
     marginBottom: 12,
   },

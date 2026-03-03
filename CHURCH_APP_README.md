@@ -55,7 +55,7 @@
 ### 🌙 Dark / Light Mode
 
 - Global theme toggle (React Context) — persists across all screens
-- Warm amber palette (#E8842C / #F5A623) for both modes
+- Bold blue & pink palette (#203F9A / #E84797) with pastel accents (#94C2DA / #E7A0CC) for both modes
 - All screens, cards, and components are fully theme-aware
 
 ### 🎨 Brand Splash
@@ -161,8 +161,8 @@ Scan the QR code with Expo Go, or press `i` / `a` to open in a simulator.
 Edit `constants/theme.ts`:
 
 ```typescript
-const tintColorLight = "#E8842C"; // Warm amber (change to your church colour)
-const tintColorDark = "#F5A623";
+const tintColorLight = "#203F9A"; // Bold blue (change to your church colour)
+const tintColorDark = "#94C2DA"; // Pastel blue for dark mode
 ```
 
 Bento card tokens: `bentoLarge`, `bentoMedium`, `bentoSmall`, `bentoAccent`

@@ -201,16 +201,16 @@ export const CHURCH_EVENTS: Event[] = [
 
 export const getCategoryColor = (category: string): string => {
   const colors: { [key: string]: string } = {
-    announcement: "#FF6B6B",
-    news: "#4ECDC4",
-    prayer: "#95E1D3",
-    ministry: "#FFE66D",
-    worship: "#A8D8FF",
-    study: "#AA96FF",
-    fellowship: "#FCBAD3",
-    outreach: "#90EE90",
+    announcement: "#E84797", // Bold Pink
+    news: "#4E7CB2", // Muted Blue
+    prayer: "#94C2DA", // Pastel Blue
+    ministry: "#203F9A", // Bold Blue
+    worship: "#E7A0CC", // Pastel Pink
+    study: "#4E7CB2", // Muted Blue
+    fellowship: "#E7A0CC", // Pastel Pink
+    outreach: "#94C2DA", // Pastel Blue
   };
-  return colors[category] || "#95E1D3";
+  return colors[category] || "#94C2DA";
 };
 
 export const getCategoryIcon = (category: string): string => {
