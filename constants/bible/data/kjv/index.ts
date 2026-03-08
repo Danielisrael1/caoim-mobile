@@ -1,0 +1,104 @@
+/**
+ * KJV Bible Data Loader — Complete Offline Bible
+ * 66 books, 1189 chapters, 31102 verses
+ * Public domain — King James Version
+ *
+ * Uses require() to load book data on demand from bundled JSON files.
+ * All data is included in the app bundle — no network required.
+ */
+import { BibleChapter } from "../../types";
+
+type BookData = { [chapter: string]: BibleChapter };
+
+const BOOK_REQUIRES: { [bookId: string]: () => BookData } = {
+  gen: () => require("./gen.json"),
+  exo: () => require("./exo.json"),
+  lev: () => require("./lev.json"),
+  num: () => require("./num.json"),
+  deu: () => require("./deu.json"),
+  jos: () => require("./jos.json"),
+  jdg: () => require("./jdg.json"),
+  rut: () => require("./rut.json"),
+  "1sa": () => require("./1sa.json"),
+  "2sa": () => require("./2sa.json"),
+  "1ki": () => require("./1ki.json"),
+  "2ki": () => require("./2ki.json"),
+  "1ch": () => require("./1ch.json"),
+  "2ch": () => require("./2ch.json"),
+  ezr: () => require("./ezr.json"),
+  neh: () => require("./neh.json"),
+  est: () => require("./est.json"),
+  job: () => require("./job.json"),
+  psa: () => require("./psa.json"),
+  pro: () => require("./pro.json"),
+  ecc: () => require("./ecc.json"),
+  sng: () => require("./sng.json"),
+  isa: () => require("./isa.json"),
+  jer: () => require("./jer.json"),
+  lam: () => require("./lam.json"),
+  ezk: () => require("./ezk.json"),
+  dan: () => require("./dan.json"),
+  hos: () => require("./hos.json"),
+  jol: () => require("./jol.json"),
+  amo: () => require("./amo.json"),
+  oba: () => require("./oba.json"),
+  jon: () => require("./jon.json"),
+  mic: () => require("./mic.json"),
+  nah: () => require("./nah.json"),
+  hab: () => require("./hab.json"),
+  zep: () => require("./zep.json"),
+  hag: () => require("./hag.json"),
+  zec: () => require("./zec.json"),
+  mal: () => require("./mal.json"),
+  mat: () => require("./mat.json"),
+  mrk: () => require("./mrk.json"),
+  luk: () => require("./luk.json"),
+  jhn: () => require("./jhn.json"),
+  act: () => require("./act.json"),
+  rom: () => require("./rom.json"),
+  "1co": () => require("./1co.json"),
+  "2co": () => require("./2co.json"),
+  gal: () => require("./gal.json"),
+  eph: () => require("./eph.json"),
+  php: () => require("./php.json"),
+  col: () => require("./col.json"),
+  "1th": () => require("./1th.json"),
+  "2th": () => require("./2th.json"),
+  "1ti": () => require("./1ti.json"),
+  "2ti": () => require("./2ti.json"),
+  tit: () => require("./tit.json"),
+  phm: () => require("./phm.json"),
+  heb: () => require("./heb.json"),
+  jas: () => require("./jas.json"),
+  "1pe": () => require("./1pe.json"),
+  "2pe": () => require("./2pe.json"),
+  "1jn": () => require("./1jn.json"),
+  "2jn": () => require("./2jn.json"),
+  "3jn": () => require("./3jn.json"),
+  jud: () => require("./jud.json"),
+  rev: () => require("./rev.json"),
+};
+
+const cache: { [bookId: string]: BookData } = {};
+
+export function getKjvBook(bookId: string): BookData | null {
+  if (cache[bookId]) return cache[bookId];
+  const loader = BOOK_REQUIRES[bookId];
+  if (!loader) return null;
+  const data = loader();
+  cache[bookId] = data;
+  return data;
+}
+
+export function getKjvChapter(
+  bookId: string,
+  chapter: number,
+): BibleChapter | null {
+  const book = getKjvBook(bookId);
+  if (!book) return null;
+  return book[String(chapter)] ?? null;
+}
+
+export function hasKjvBook(bookId: string): boolean {
+  return bookId in BOOK_REQUIRES;
+}

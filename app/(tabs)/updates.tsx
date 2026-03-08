@@ -1,7 +1,9 @@
 import { BottomFade } from "@/components/bottom-fade";
+import { BIBLE_VERSIONS, BibleVersionId, getBooks } from "@/constants/bible";
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ScrollView,
@@ -70,60 +72,26 @@ const SERMONS: Sermon[] = [
   },
 ];
 
-interface BibleBook {
-  id: string;
-  name: string;
-  chapters: number;
-  testament: "old" | "new";
-}
-
-const BIBLE_BOOKS: BibleBook[] = [
-  { id: "gen", name: "Genesis", chapters: 50, testament: "old" },
-  { id: "exo", name: "Exodus", chapters: 40, testament: "old" },
-  { id: "lev", name: "Leviticus", chapters: 27, testament: "old" },
-  { id: "psa", name: "Psalms", chapters: 150, testament: "old" },
-  { id: "pro", name: "Proverbs", chapters: 31, testament: "old" },
-  { id: "isa", name: "Isaiah", chapters: 66, testament: "old" },
-  { id: "mat", name: "Matthew", chapters: 28, testament: "new" },
-  { id: "mrk", name: "Mark", chapters: 16, testament: "new" },
-  { id: "luk", name: "Luke", chapters: 24, testament: "new" },
-  { id: "jhn", name: "John", chapters: 21, testament: "new" },
-  { id: "act", name: "Acts", chapters: 28, testament: "new" },
-  { id: "rom", name: "Romans", chapters: 16, testament: "new" },
-  { id: "rev", name: "Revelation", chapters: 22, testament: "new" },
-];
-
 type Tab = "sermons" | "bible";
 type SermonFilter = "all" | "video" | "audio";
 type BibleFilter = "all" | "old" | "new";
-type BibleVersion = "NIV" | "NKJV" | "Luganda";
-
-const BIBLE_VERSIONS: {
-  id: BibleVersion;
-  label: string;
-  description: string;
-}[] = [
-  { id: "NIV", label: "NIV", description: "New International Version" },
-  { id: "NKJV", label: "NKJV", description: "New King James Version" },
-  { id: "Luganda", label: "Luganda", description: "Luganda Bible" },
-];
 
 export default function MediaScreen() {
   const t = useAppTheme();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("sermons");
   const [sermonFilter, setSermonFilter] = useState<SermonFilter>("all");
   const [bibleFilter, setBibleFilter] = useState<BibleFilter>("all");
-  const [bibleVersion, setBibleVersion] = useState<BibleVersion>("NIV");
+  const [bibleVersion, setBibleVersion] = useState<BibleVersionId>("kjv");
 
   const filteredSermons =
     sermonFilter === "all"
       ? SERMONS
       : SERMONS.filter((s) => s.type === sermonFilter);
 
-  const filteredBooks =
-    bibleFilter === "all"
-      ? BIBLE_BOOKS
-      : BIBLE_BOOKS.filter((b) => b.testament === bibleFilter);
+  const filteredBooks = getBooks(
+    bibleFilter === "all" ? undefined : bibleFilter === "old" ? "old" : "new",
+  );
 
   return (
     <SafeAreaView
@@ -368,6 +336,16 @@ export default function MediaScreen() {
                 <TouchableOpacity
                   key={book.id}
                   activeOpacity={0.8}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/bible-reader",
+                      params: {
+                        bookId: book.id,
+                        chapter: "1",
+                        version: bibleVersion,
+                      },
+                    })
+                  }
                   style={[
                     styles.bibleCard,
                     { backgroundColor: t.cardBg, borderColor: t.border },
