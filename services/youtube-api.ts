@@ -12,7 +12,7 @@
  */
 
 /** YouTube Data API v3 key */
-const YOUTUBE_API_KEY: string = "AIzaSyADM56MCdi4ajz7VT-3-q4aC1eZs24Kt8Y";
+const YOUTUBE_API_KEY: string = process.env.EXPO_PUBLIC_YOUTUBE_API_KEY ?? "";
 
 /** CAOIM YouTube channel ID — resolved from @caoim26 */
 const CHANNEL_ID = "UCbS5Y40CjCU316YugzroIlg";
@@ -21,7 +21,12 @@ const CHANNEL_ID = "UCbS5Y40CjCU316YugzroIlg";
 export const CHANNEL_URL = "https://www.youtube.com/@caoim26";
 
 export type VideoType = "live" | "short" | "video";
-export type VideoCategory = "conference" | "sunday" | "wednesday" | "worship" | "other";
+export type VideoCategory =
+  | "conference"
+  | "sunday"
+  | "wednesday"
+  | "worship"
+  | "other";
 
 export interface YouTubeVideo {
   id: string;
@@ -183,10 +188,16 @@ export async function fetchChannelInfo(): Promise<YouTubeChannelInfo | null> {
 }
 
 /** Fetch view counts and durations for a list of video IDs */
-export async function fetchVideoStats(
-  videoIds: string[],
-): Promise<
-  Record<string, { viewCount: string; duration: string; likeCount: string; rawDuration: string }>
+export async function fetchVideoStats(videoIds: string[]): Promise<
+  Record<
+    string,
+    {
+      viewCount: string;
+      duration: string;
+      likeCount: string;
+      rawDuration: string;
+    }
+  >
 > {
   if (!isYouTubeConfigured() || videoIds.length === 0) return {};
 
@@ -198,7 +209,12 @@ export async function fetchVideoStats(
     const data = await res.json();
     const result: Record<
       string,
-      { viewCount: string; duration: string; likeCount: string; rawDuration: string }
+      {
+        viewCount: string;
+        duration: string;
+        likeCount: string;
+        rawDuration: string;
+      }
     > = {};
 
     for (const item of data?.items ?? []) {
@@ -220,18 +236,25 @@ export async function fetchVideoStats(
 function durationToSeconds(iso: string): number {
   const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!match) return 0;
-  return (parseInt(match[1] ?? "0") * 3600) +
-         (parseInt(match[2] ?? "0") * 60) +
-         parseInt(match[3] ?? "0");
+  return (
+    parseInt(match[1] ?? "0") * 3600 +
+    parseInt(match[2] ?? "0") * 60 +
+    parseInt(match[3] ?? "0")
+  );
 }
 
 /** Classify video as short, live, or regular video */
 function classifyVideoType(video: YouTubeVideo): VideoType {
   if (video.isLive) return "live";
   // Shorts are ≤ 60 seconds
-  if (video.rawDuration && durationToSeconds(video.rawDuration) <= 60) return "short";
+  if (video.rawDuration && durationToSeconds(video.rawDuration) <= 60)
+    return "short";
   // Title-based: hashtag-heavy short titles are usually Shorts
-  if (video.title.startsWith("#") && (!video.rawDuration || durationToSeconds(video.rawDuration) <= 120)) return "short";
+  if (
+    video.title.startsWith("#") &&
+    (!video.rawDuration || durationToSeconds(video.rawDuration) <= 120)
+  )
+    return "short";
   return "video";
 }
 
@@ -240,8 +263,15 @@ function classifyCategory(video: YouTubeVideo): VideoCategory {
   const t = video.title.toUpperCase();
   if (t.includes("CONFERENCE") || t.includes("BELIEVER")) return "conference";
   if (t.includes("SUNDAY") || t.includes("MAIN SERVICE")) return "sunday";
-  if (t.includes("WEDNESDAY") || t.includes("MIDWEEK") || t.includes("MID-WEEK") || t.includes("PRAYER")) return "wednesday";
-  if (t.includes("WORSHIP") || t.includes("PRAISE") || t.includes("HYMN")) return "worship";
+  if (
+    t.includes("WEDNESDAY") ||
+    t.includes("MIDWEEK") ||
+    t.includes("MID-WEEK") ||
+    t.includes("PRAYER")
+  )
+    return "wednesday";
+  if (t.includes("WORSHIP") || t.includes("PRAISE") || t.includes("HYMN"))
+    return "worship";
   // Description fallback
   const d = video.description.toUpperCase();
   if (d.includes("CONFERENCE")) return "conference";

@@ -61,7 +61,9 @@ const CATEGORY_CHIPS: { key: CategoryFilter; label: string }[] = [
 export default function LiveStreamScreen() {
   const t = useAppTheme();
 
-  const [channelInfo, setChannelInfo] = useState<YouTubeChannelInfo | null>(null);
+  const [channelInfo, setChannelInfo] = useState<YouTubeChannelInfo | null>(
+    null,
+  );
   const [ytVideos, setYtVideos] = useState<YouTubeVideo[]>([]);
   const [ytLive, setYtLive] = useState<YouTubeVideo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,10 @@ export default function LiveStreamScreen() {
   const webViewRef = useRef<WebView>(null);
 
   const loadYouTube = useCallback(async () => {
-    if (!ytConfigured) { setLoading(false); return; }
+    if (!ytConfigured) {
+      setLoading(false);
+      return;
+    }
     try {
       const [videos, live, channel] = await Promise.all([
         fetchRecentVideos(50),
@@ -84,10 +89,16 @@ export default function LiveStreamScreen() {
       setYtLive(live);
       setChannelInfo(channel);
       if (live) setActiveVideoId(live.id);
-    } catch { /* silently fail */ } finally { setLoading(false); }
+    } catch {
+      /* silently fail */
+    } finally {
+      setLoading(false);
+    }
   }, [ytConfigured]);
 
-  useEffect(() => { loadYouTube(); }, [loadYouTube]);
+  useEffect(() => {
+    loadYouTube();
+  }, [loadYouTube]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -114,7 +125,9 @@ export default function LiveStreamScreen() {
   /* Available categories (only show chips that have content) */
   const availableCategories = useMemo(() => {
     const cats = new Set(ytVideos.map((v) => v.category));
-    return CATEGORY_CHIPS.filter((c) => c.key === "all" || cats.has(c.key as VideoCategory));
+    return CATEGORY_CHIPS.filter(
+      (c) => c.key === "all" || cats.has(c.key as VideoCategory),
+    );
   }, [ytVideos]);
 
   /* YouTube watch URL for the WebView player — loads the real YouTube mobile player */
@@ -137,12 +150,17 @@ export default function LiveStreamScreen() {
   const showNonShorts = typeFilter === "all" || typeFilter !== "short";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.background }} edges={["top"]}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: t.background }}
+      edges={["top"]}
+    >
       {/* Header */}
       <View style={styles.headerSection}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={[styles.headerTitle, { color: t.text }]}>CAOIM Live</Text>
+            <Text style={[styles.headerTitle, { color: t.text }]}>
+              CAOIM Live
+            </Text>
             <Text style={[styles.headerSubtitle, { color: t.textSecondary }]}>
               Watch services & streams
             </Text>
@@ -159,21 +177,34 @@ export default function LiveStreamScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         {/* ── Channel Header ── */}
         {channelInfo && (
           <View style={styles.channelHeader}>
-            <Image source={{ uri: channelInfo.thumbnail }} style={styles.channelAvatar} />
+            <Image
+              source={{ uri: channelInfo.thumbnail }}
+              style={styles.channelAvatar}
+            />
             <View style={styles.channelMeta}>
-              <Text style={[styles.channelName, { color: t.text }]} numberOfLines={1}>
+              <Text
+                style={[styles.channelName, { color: t.text }]}
+                numberOfLines={1}
+              >
                 {channelInfo.name}
               </Text>
               <Text style={[styles.channelStats, { color: t.textSecondary }]}>
-                {fmtSubs(channelInfo.subscriberCount)} subscribers · {channelInfo.videoCount} videos
+                {fmtSubs(channelInfo.subscriberCount)} subscribers ·{" "}
+                {channelInfo.videoCount} videos
               </Text>
             </View>
-            <TouchableOpacity activeOpacity={0.8} onPress={handleSubscribe} style={styles.subscribeBtn}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSubscribe}
+              style={styles.subscribeBtn}
+            >
               <Ionicons name="logo-youtube" size={16} color="#FFF" />
               <Text style={styles.subscribeBtnText}>Subscribe</Text>
             </TouchableOpacity>
@@ -199,7 +230,10 @@ export default function LiveStreamScreen() {
             </View>
             {activeVideo && (
               <View style={styles.nowPlayingInfo}>
-                <Text style={[styles.nowPlayingTitle, { color: t.text }]} numberOfLines={2}>
+                <Text
+                  style={[styles.nowPlayingTitle, { color: t.text }]}
+                  numberOfLines={2}
+                >
                   {activeVideo.title}
                 </Text>
                 <View style={styles.nowPlayingRow}>
@@ -209,14 +243,32 @@ export default function LiveStreamScreen() {
                       <Text style={styles.nowPlayingLiveText}>Live Stream</Text>
                     </View>
                   ) : (
-                    <Text style={[styles.nowPlayingMeta, { color: t.textSecondary }]}>
-                      {activeVideo.viewCount ? formatViews(activeVideo.viewCount) : ""}
-                      {activeVideo.viewCount && activeVideo.publishedAt ? "  ·  " : ""}
-                      {activeVideo.publishedAt ? timeAgo(activeVideo.publishedAt) : ""}
+                    <Text
+                      style={[
+                        styles.nowPlayingMeta,
+                        { color: t.textSecondary },
+                      ]}
+                    >
+                      {activeVideo.viewCount
+                        ? formatViews(activeVideo.viewCount)
+                        : ""}
+                      {activeVideo.viewCount && activeVideo.publishedAt
+                        ? "  ·  "
+                        : ""}
+                      {activeVideo.publishedAt
+                        ? timeAgo(activeVideo.publishedAt)
+                        : ""}
                     </Text>
                   )}
-                  <TouchableOpacity onPress={() => setActiveVideoId(null)} hitSlop={8}>
-                    <Ionicons name="close-circle" size={24} color={t.textSecondary} />
+                  <TouchableOpacity
+                    onPress={() => setActiveVideoId(null)}
+                    hitSlop={8}
+                  >
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={t.textSecondary}
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -228,7 +280,9 @@ export default function LiveStreamScreen() {
         {loading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={t.tint} />
-            <Text style={[styles.loadingText, { color: t.textSecondary }]}>Loading from YouTube...</Text>
+            <Text style={[styles.loadingText, { color: t.textSecondary }]}>
+              Loading from YouTube...
+            </Text>
           </View>
         )}
 
@@ -237,18 +291,32 @@ export default function LiveStreamScreen() {
           <View style={styles.sectionContainer}>
             <View style={styles.sectionTitleRow}>
               <View style={styles.sectionDot} />
-              <Text style={[styles.sectionTitle, { color: t.text }]}>Now Live</Text>
+              <Text style={[styles.sectionTitle, { color: t.text }]}>
+                Now Live
+              </Text>
             </View>
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => playVideo(ytLive.id)}
-              style={[styles.videoCard, { backgroundColor: t.cardBg, borderColor: t.border }]}
+              style={[
+                styles.videoCard,
+                { backgroundColor: t.cardBg, borderColor: t.border },
+              ]}
             >
               {ytLive.thumbnail ? (
                 <View style={styles.cardThumbWrap}>
-                  <Image source={{ uri: ytLive.thumbnail }} style={styles.cardThumbImg} resizeMode="cover" />
+                  <Image
+                    source={{ uri: ytLive.thumbnail }}
+                    style={styles.cardThumbImg}
+                    resizeMode="cover"
+                  />
                   <View style={styles.playOverlay}>
-                    <View style={[styles.playBtn, { backgroundColor: "rgba(232,71,151,0.9)" }]}>
+                    <View
+                      style={[
+                        styles.playBtn,
+                        { backgroundColor: "rgba(232,71,151,0.9)" },
+                      ]}
+                    >
                       <Ionicons name="play" size={28} color="#FFF" />
                     </View>
                   </View>
@@ -259,8 +327,15 @@ export default function LiveStreamScreen() {
                 </View>
               ) : null}
               <View style={styles.cardBody}>
-                <Text style={[styles.cardTitle, { color: t.text }]} numberOfLines={2}>{ytLive.title}</Text>
-                <Text style={[styles.cardMeta, { color: t.tint }]}>Tap to watch live</Text>
+                <Text
+                  style={[styles.cardTitle, { color: t.text }]}
+                  numberOfLines={2}
+                >
+                  {ytLive.title}
+                </Text>
+                <Text style={[styles.cardMeta, { color: t.tint }]}>
+                  Tap to watch live
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -269,18 +344,28 @@ export default function LiveStreamScreen() {
         {/* ── Filter Chips: Type ── */}
         {!loading && ytConfigured && ytVideos.length > 0 && (
           <View style={styles.filterSection}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.chipRow}
+            >
               {TYPE_CHIPS.map((chip) => {
                 const active = typeFilter === chip.key;
                 return (
                   <TouchableOpacity
                     key={chip.key}
                     activeOpacity={0.8}
-                    onPress={() => { setTypeFilter(chip.key); setCatFilter("all"); }}
+                    onPress={() => {
+                      setTypeFilter(chip.key);
+                      setCatFilter("all");
+                    }}
                     style={[
                       styles.filterChip,
                       { borderColor: t.border },
-                      active && { backgroundColor: t.tint, borderColor: t.tint },
+                      active && {
+                        backgroundColor: t.tint,
+                        borderColor: t.tint,
+                      },
                     ]}
                   >
                     <Ionicons
@@ -288,7 +373,12 @@ export default function LiveStreamScreen() {
                       size={14}
                       color={active ? "#FFF" : t.textSecondary}
                     />
-                    <Text style={[styles.filterChipText, { color: active ? "#FFF" : t.textSecondary }]}>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        { color: active ? "#FFF" : t.textSecondary },
+                      ]}
+                    >
                       {chip.label}
                     </Text>
                   </TouchableOpacity>
@@ -298,7 +388,11 @@ export default function LiveStreamScreen() {
 
             {/* Category sub-chips */}
             {typeFilter !== "short" && (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chipRow}
+              >
                 {availableCategories.map((chip) => {
                   const active = catFilter === chip.key;
                   return (
@@ -308,11 +402,21 @@ export default function LiveStreamScreen() {
                       onPress={() => setCatFilter(chip.key)}
                       style={[
                         styles.catChip,
-                        { borderColor: t.border, backgroundColor: active ? "rgba(232,71,151,0.15)" : "transparent" },
+                        {
+                          borderColor: t.border,
+                          backgroundColor: active
+                            ? "rgba(232,71,151,0.15)"
+                            : "transparent",
+                        },
                         active && { borderColor: "#E84797" },
                       ]}
                     >
-                      <Text style={[styles.catChipText, { color: active ? "#E84797" : t.textSecondary }]}>
+                      <Text
+                        style={[
+                          styles.catChipText,
+                          { color: active ? "#E84797" : t.textSecondary },
+                        ]}
+                      >
                         {chip.label}
                       </Text>
                     </TouchableOpacity>
@@ -328,11 +432,17 @@ export default function LiveStreamScreen() {
           <View style={styles.sectionContainer}>
             {typeFilter === "all" && (
               <View style={styles.sectionHeaderRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                >
                   <Ionicons name="flash" size={18} color="#E84797" />
-                  <Text style={[styles.sectionTitle, { color: t.text }]}>Shorts</Text>
+                  <Text style={[styles.sectionTitle, { color: t.text }]}>
+                    Shorts
+                  </Text>
                 </View>
-                <Text style={[styles.videoCount, { color: t.textSecondary }]}>{shorts.length} clips</Text>
+                <Text style={[styles.videoCount, { color: t.textSecondary }]}>
+                  {shorts.length} clips
+                </Text>
               </View>
             )}
             <View style={styles.shortsGrid}>
@@ -349,13 +459,19 @@ export default function LiveStreamScreen() {
                       isPlaying && { borderColor: t.tint, borderWidth: 2 },
                     ]}
                   >
-                    <Image source={{ uri: video.thumbnail }} style={styles.shortThumb} resizeMode="cover" />
+                    <Image
+                      source={{ uri: video.thumbnail }}
+                      style={styles.shortThumb}
+                      resizeMode="cover"
+                    />
                     <View style={styles.shortOverlay}>
                       <Ionicons name="play" size={28} color="#FFF" />
                     </View>
                     {video.duration ? (
                       <View style={styles.shortDuration}>
-                        <Text style={styles.durationText}>{video.duration}</Text>
+                        <Text style={styles.durationText}>
+                          {video.duration}
+                        </Text>
                       </View>
                     ) : null}
                     {isPlaying && (
@@ -364,11 +480,16 @@ export default function LiveStreamScreen() {
                       </View>
                     )}
                     <View style={styles.shortBody}>
-                      <Text style={[styles.shortTitle, { color: t.text }]} numberOfLines={2}>
+                      <Text
+                        style={[styles.shortTitle, { color: t.text }]}
+                        numberOfLines={2}
+                      >
                         {video.title}
                       </Text>
                       {video.viewCount ? (
-                        <Text style={[styles.shortMeta, { color: t.textSecondary }]}>
+                        <Text
+                          style={[styles.shortMeta, { color: t.textSecondary }]}
+                        >
                           {formatViews(video.viewCount)}
                         </Text>
                       ) : null}
@@ -385,18 +506,27 @@ export default function LiveStreamScreen() {
           <View style={styles.sectionContainer}>
             {typeFilter === "all" && (
               <View style={styles.sectionHeaderRow}>
-                <Text style={[styles.sectionTitle, { color: t.text }]}>Videos</Text>
-                <Text style={[styles.videoCount, { color: t.textSecondary }]}>{nonShorts.length} videos</Text>
+                <Text style={[styles.sectionTitle, { color: t.text }]}>
+                  Videos
+                </Text>
+                <Text style={[styles.videoCount, { color: t.textSecondary }]}>
+                  {nonShorts.length} videos
+                </Text>
               </View>
             )}
             {typeFilter !== "all" && (
               <View style={styles.sectionHeaderRow}>
                 <Text style={[styles.sectionTitle, { color: t.text }]}>
                   {catFilter !== "all"
-                    ? CATEGORY_CHIPS.find((c) => c.key === catFilter)?.label ?? "Videos"
-                    : typeFilter === "live" ? "Past Live Streams" : "Videos"}
+                    ? (CATEGORY_CHIPS.find((c) => c.key === catFilter)?.label ??
+                      "Videos")
+                    : typeFilter === "live"
+                      ? "Past Live Streams"
+                      : "Videos"}
                 </Text>
-                <Text style={[styles.videoCount, { color: t.textSecondary }]}>{nonShorts.length} videos</Text>
+                <Text style={[styles.videoCount, { color: t.textSecondary }]}>
+                  {nonShorts.length} videos
+                </Text>
               </View>
             )}
             {nonShorts.map((video) => {
@@ -413,26 +543,48 @@ export default function LiveStreamScreen() {
                   ]}
                 >
                   <View style={styles.cardThumbWrap}>
-                    <Image source={{ uri: video.thumbnail }} style={styles.cardThumbImg} resizeMode="cover" />
+                    <Image
+                      source={{ uri: video.thumbnail }}
+                      style={styles.cardThumbImg}
+                      resizeMode="cover"
+                    />
                     {video.duration ? (
                       <View style={styles.durationBadge}>
-                        <Text style={styles.durationText}>{video.duration}</Text>
+                        <Text style={styles.durationText}>
+                          {video.duration}
+                        </Text>
                       </View>
                     ) : null}
                     {/* Category pill */}
                     {video.category && video.category !== "other" && (
                       <View style={styles.categoryBadge}>
                         <Text style={styles.categoryBadgeText}>
-                          {video.category === "conference" ? "Conference" :
-                           video.category === "sunday" ? "Sunday" :
-                           video.category === "wednesday" ? "Wednesday" :
-                           video.category === "worship" ? "Worship" : ""}
+                          {video.category === "conference"
+                            ? "Conference"
+                            : video.category === "sunday"
+                              ? "Sunday"
+                              : video.category === "wednesday"
+                                ? "Wednesday"
+                                : video.category === "worship"
+                                  ? "Worship"
+                                  : ""}
                         </Text>
                       </View>
                     )}
                     <View style={styles.playOverlay}>
-                      <View style={[styles.playBtn, isPlaying && { backgroundColor: "rgba(232,71,151,1)" }]}>
-                        <Ionicons name={isPlaying ? "musical-notes" : "play"} size={24} color="#FFF" />
+                      <View
+                        style={[
+                          styles.playBtn,
+                          isPlaying && {
+                            backgroundColor: "rgba(232,71,151,1)",
+                          },
+                        ]}
+                      >
+                        <Ionicons
+                          name={isPlaying ? "musical-notes" : "play"}
+                          size={24}
+                          color="#FFF"
+                        />
                       </View>
                     </View>
                     {isPlaying && (
@@ -442,28 +594,60 @@ export default function LiveStreamScreen() {
                     )}
                   </View>
                   <View style={styles.cardBody}>
-                    <Text style={[styles.cardTitle, { color: t.text }]} numberOfLines={2}>{video.title}</Text>
+                    <Text
+                      style={[styles.cardTitle, { color: t.text }]}
+                      numberOfLines={2}
+                    >
+                      {video.title}
+                    </Text>
                     <View style={styles.cardMetaRow}>
                       {video.viewCount ? (
                         <View style={styles.metaChip}>
-                          <Ionicons name="eye-outline" size={12} color={t.textSecondary} />
-                          <Text style={[styles.metaChipText, { color: t.textSecondary }]}>
+                          <Ionicons
+                            name="eye-outline"
+                            size={12}
+                            color={t.textSecondary}
+                          />
+                          <Text
+                            style={[
+                              styles.metaChipText,
+                              { color: t.textSecondary },
+                            ]}
+                          >
                             {formatViews(video.viewCount)}
                           </Text>
                         </View>
                       ) : null}
                       {video.likeCount && parseInt(video.likeCount) > 0 ? (
                         <View style={styles.metaChip}>
-                          <Ionicons name="heart-outline" size={12} color={t.textSecondary} />
-                          <Text style={[styles.metaChipText, { color: t.textSecondary }]}>
+                          <Ionicons
+                            name="heart-outline"
+                            size={12}
+                            color={t.textSecondary}
+                          />
+                          <Text
+                            style={[
+                              styles.metaChipText,
+                              { color: t.textSecondary },
+                            ]}
+                          >
                             {formatViews(video.likeCount).replace(" views", "")}
                           </Text>
                         </View>
                       ) : null}
                       {video.publishedAt ? (
                         <View style={styles.metaChip}>
-                          <Ionicons name="time-outline" size={12} color={t.textSecondary} />
-                          <Text style={[styles.metaChipText, { color: t.textSecondary }]}>
+                          <Ionicons
+                            name="time-outline"
+                            size={12}
+                            color={t.textSecondary}
+                          />
+                          <Text
+                            style={[
+                              styles.metaChipText,
+                              { color: t.textSecondary },
+                            ]}
+                          >
                             {timeAgo(video.publishedAt)}
                           </Text>
                         </View>
@@ -477,36 +661,62 @@ export default function LiveStreamScreen() {
         )}
 
         {/* ── Empty state ── */}
-        {!loading && ytConfigured && filteredVideos.length === 0 && ytVideos.length > 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="film-outline" size={48} color={t.textSecondary} />
-            <Text style={[styles.emptyText, { color: t.textSecondary }]}>
-              No videos match this filter
-            </Text>
-            <TouchableOpacity onPress={() => { setTypeFilter("all"); setCatFilter("all"); }}>
-              <Text style={[styles.emptyReset, { color: t.tint }]}>Clear filters</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        {!loading &&
+          ytConfigured &&
+          filteredVideos.length === 0 &&
+          ytVideos.length > 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons name="film-outline" size={48} color={t.textSecondary} />
+              <Text style={[styles.emptyText, { color: t.textSecondary }]}>
+                No videos match this filter
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setTypeFilter("all");
+                  setCatFilter("all");
+                }}
+              >
+                <Text style={[styles.emptyReset, { color: t.tint }]}>
+                  Clear filters
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
         {/* ── Info Cards ── */}
         <View style={styles.infoSection}>
-          <View style={[styles.infoCard, { backgroundColor: t.cardBgElevated, borderColor: t.border }]}>
+          <View
+            style={[
+              styles.infoCard,
+              { backgroundColor: t.cardBgElevated, borderColor: t.border },
+            ]}
+          >
             <View style={styles.infoRow}>
               <Ionicons name="time-outline" size={18} color={t.tint} />
-              <Text style={[styles.infoTitle, { color: t.text }]}>Service Schedule</Text>
+              <Text style={[styles.infoTitle, { color: t.text }]}>
+                Service Schedule
+              </Text>
             </View>
             <Text style={[styles.infoText, { color: t.textSecondary }]}>
-              Sunday Service: 10:00 AM{"\n"}Midweek Prayer: 7:00 PM{"\n"}Youth Group: 6:30 PM
+              Sunday Service: 10:00 AM{"\n"}Midweek Prayer: 7:00 PM{"\n"}Youth
+              Group: 6:30 PM
             </Text>
           </View>
-          <View style={[styles.infoCard, { backgroundColor: t.cardBgElevated, borderColor: t.border }]}>
+          <View
+            style={[
+              styles.infoCard,
+              { backgroundColor: t.cardBgElevated, borderColor: t.border },
+            ]}
+          >
             <View style={styles.infoRow}>
               <Ionicons name="notifications-outline" size={18} color={t.tint} />
-              <Text style={[styles.infoTitle, { color: t.text }]}>Never Miss a Stream</Text>
+              <Text style={[styles.infoTitle, { color: t.text }]}>
+                Never Miss a Stream
+              </Text>
             </View>
             <Text style={[styles.infoText, { color: t.textSecondary }]}>
-              Enable notifications to be alerted when we go live with a new service or event.
+              Enable notifications to be alerted when we go live with a new
+              service or event.
             </Text>
           </View>
         </View>
@@ -519,44 +729,88 @@ export default function LiveStreamScreen() {
 const styles = StyleSheet.create({
   /* Header */
   headerSection: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
   headerTitle: { fontSize: 28, fontFamily: Fonts.extraBold, marginBottom: 2 },
   headerSubtitle: { fontSize: 14, fontFamily: Fonts.regular },
   liveIndicator: {
-    flexDirection: "row", alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "rgba(232,71,151,0.12)",
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, gap: 6, marginTop: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+    marginTop: 4,
   },
-  livePulse: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#E84797" },
-  liveIndicatorText: { fontSize: 11, fontFamily: Fonts.extraBold, color: "#E84797", letterSpacing: 0.5 },
+  livePulse: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#E84797",
+  },
+  liveIndicatorText: {
+    fontSize: 11,
+    fontFamily: Fonts.extraBold,
+    color: "#E84797",
+    letterSpacing: 0.5,
+  },
 
   /* Channel header */
   channelHeader: {
-    flexDirection: "row", alignItems: "center",
-    paddingHorizontal: 16, paddingVertical: 12, gap: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
   },
   channelAvatar: { width: 44, height: 44, borderRadius: 22 },
   channelMeta: { flex: 1 },
   channelName: { fontSize: 15, fontFamily: Fonts.bold, marginBottom: 1 },
   channelStats: { fontSize: 12, fontFamily: Fonts.regular },
   subscribeBtn: {
-    flexDirection: "row", alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#FF0000",
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, gap: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 5,
   },
   subscribeBtnText: { color: "#FFF", fontSize: 13, fontFamily: Fonts.bold },
 
   /* Player */
   playerSection: { marginBottom: 16 },
   playerContainer: { backgroundColor: "#000" },
-  playerWebView: { width: "100%", height: PLAYER_HEIGHT, backgroundColor: "#000" },
+  playerWebView: {
+    width: "100%",
+    height: PLAYER_HEIGHT,
+    backgroundColor: "#000",
+  },
   nowPlayingInfo: { paddingTop: 12, paddingHorizontal: 16 },
   nowPlayingTitle: { fontSize: 16, fontFamily: Fonts.bold, lineHeight: 22 },
-  nowPlayingRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 6 },
+  nowPlayingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 6,
+  },
   nowPlayingMeta: { fontSize: 13, fontFamily: Fonts.regular },
   nowPlayingLive: { flexDirection: "row", alignItems: "center", gap: 6 },
-  nowPlayingDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#E84797" },
-  nowPlayingLiveText: { fontSize: 12, fontFamily: Fonts.bold, color: "#E84797" },
+  nowPlayingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#E84797",
+  },
+  nowPlayingLiveText: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    color: "#E84797",
+  },
 
   /* Loading */
   loadingContainer: { alignItems: "center", paddingVertical: 48, gap: 12 },
@@ -566,67 +820,146 @@ const styles = StyleSheet.create({
   filterSection: { paddingBottom: 8 },
   chipRow: { paddingHorizontal: 16, gap: 8, paddingVertical: 6 },
   filterChip: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    paddingHorizontal: 14, paddingVertical: 8,
-    borderRadius: 20, borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   filterChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
   catChip: {
-    paddingHorizontal: 14, paddingVertical: 6,
-    borderRadius: 16, borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
   },
   catChipText: { fontSize: 12, fontFamily: Fonts.semiBold },
 
   /* Sections */
   sectionContainer: { paddingHorizontal: 16, marginBottom: 24 },
-  sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
-  sectionDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: "#E84797" },
+  sectionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#E84797",
+  },
   sectionTitle: { fontSize: 18, fontFamily: Fonts.bold },
-  sectionHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 14,
+  },
   videoCount: { fontSize: 13, fontFamily: Fonts.medium },
 
   /* Video card */
-  videoCard: { borderRadius: 16, borderWidth: 1, overflow: "hidden", marginBottom: 16 },
+  videoCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
   cardThumbWrap: { position: "relative" },
   cardThumbImg: { width: "100%", height: CARD_THUMB_HEIGHT },
   playOverlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "center", alignItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.25)",
   },
   playBtn: {
-    width: 52, height: 52, borderRadius: 26,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "rgba(0,0,0,0.55)",
-    justifyContent: "center", alignItems: "center", paddingLeft: 3,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: 3,
   },
   durationBadge: {
-    position: "absolute", bottom: 10, right: 10,
+    position: "absolute",
+    bottom: 10,
+    right: 10,
     backgroundColor: "rgba(0,0,0,0.8)",
-    paddingHorizontal: 7, paddingVertical: 3, borderRadius: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 4,
   },
-  durationText: { color: "#FFF", fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.3 },
+  durationText: {
+    color: "#FFF",
+    fontSize: 11,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.3,
+  },
   categoryBadge: {
-    position: "absolute", top: 12, left: 12,
+    position: "absolute",
+    top: 12,
+    left: 12,
     backgroundColor: "rgba(32,63,154,0.85)",
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  categoryBadgeText: { color: "#FFF", fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.5 },
+  categoryBadgeText: {
+    color: "#FFF",
+    fontSize: 10,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.5,
+  },
   playingStrip: {
-    position: "absolute", top: 0, left: 0, right: 0,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
     backgroundColor: "rgba(232,71,151,0.9)",
-    paddingVertical: 4, alignItems: "center",
+    paddingVertical: 4,
+    alignItems: "center",
   },
-  playingStripText: { color: "#FFF", fontSize: 10, fontFamily: Fonts.extraBold, letterSpacing: 1 },
+  playingStripText: {
+    color: "#FFF",
+    fontSize: 10,
+    fontFamily: Fonts.extraBold,
+    letterSpacing: 1,
+  },
   liveBadge: {
-    position: "absolute", top: 12, left: 12,
-    flexDirection: "row", alignItems: "center",
+    position: "absolute",
+    top: 12,
+    left: 12,
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "rgba(232,71,151,0.9)",
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 6,
   },
-  liveBadgeDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#FFF" },
-  liveBadgeText: { color: "#FFF", fontSize: 11, fontFamily: Fonts.extraBold, letterSpacing: 0.5 },
+  liveBadgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#FFF",
+  },
+  liveBadgeText: {
+    color: "#FFF",
+    fontSize: 11,
+    fontFamily: Fonts.extraBold,
+    letterSpacing: 0.5,
+  },
   cardBody: { padding: 14 },
-  cardTitle: { fontSize: 15, fontFamily: Fonts.semiBold, lineHeight: 21, marginBottom: 8 },
+  cardTitle: {
+    fontSize: 15,
+    fontFamily: Fonts.semiBold,
+    lineHeight: 21,
+    marginBottom: 8,
+  },
   cardMeta: { fontSize: 13, fontFamily: Fonts.medium },
   cardMetaRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   metaChip: { flexDirection: "row", alignItems: "center", gap: 4 },
@@ -634,21 +967,40 @@ const styles = StyleSheet.create({
 
   /* Shorts grid */
   shortsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  shortCard: { width: SHORT_CARD_W, borderRadius: 14, borderWidth: 1, overflow: "hidden" },
-  shortThumb: { width: "100%", height: SHORT_CARD_H * 0.65, backgroundColor: "#111" },
+  shortCard: {
+    width: SHORT_CARD_W,
+    borderRadius: 14,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  shortThumb: {
+    width: "100%",
+    height: SHORT_CARD_H * 0.65,
+    backgroundColor: "#111",
+  },
   shortOverlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "center", alignItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.15)",
     height: SHORT_CARD_H * 0.65,
   },
   shortDuration: {
-    position: "absolute", top: SHORT_CARD_H * 0.65 - 24, right: 6,
+    position: "absolute",
+    top: SHORT_CARD_H * 0.65 - 24,
+    right: 6,
     backgroundColor: "rgba(0,0,0,0.8)",
-    paddingHorizontal: 5, paddingVertical: 2, borderRadius: 3,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 3,
   },
   shortBody: { padding: 8 },
-  shortTitle: { fontSize: 12, fontFamily: Fonts.semiBold, lineHeight: 16, marginBottom: 4 },
+  shortTitle: {
+    fontSize: 12,
+    fontFamily: Fonts.semiBold,
+    lineHeight: 16,
+    marginBottom: 4,
+  },
   shortMeta: { fontSize: 11, fontFamily: Fonts.regular },
 
   /* Empty */
@@ -659,7 +1011,12 @@ const styles = StyleSheet.create({
   /* Info */
   infoSection: { paddingHorizontal: 16, marginBottom: 32, gap: 12 },
   infoCard: { padding: 16, borderRadius: 14, borderWidth: 1 },
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
   infoTitle: { fontFamily: Fonts.bold, fontSize: 16 },
   infoText: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 20 },
 });

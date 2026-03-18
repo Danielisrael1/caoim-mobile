@@ -38,10 +38,10 @@ export interface Event {
 export const CHURCH_UPDATES: Update[] = [
   {
     id: "1",
-    title: "New Youth Ministry Program",
+    title: "Monday Bible Study",
     description:
-      "We are excited to announce the launch of our new youth ministry program designed for teens aged 13-18. Join us every Wednesday at 7 PM for worship, games, and spiritual growth.",
-    date: "2025-02-23",
+      "Join us every Monday as we dive deep into the word of God.",
+    date: "2025-02-20.",
     category: "announcement",
   },
   {
@@ -49,7 +49,7 @@ export const CHURCH_UPDATES: Update[] = [
     title: "Sunday Service Recording Available",
     description:
       'The recording of last Sunday\'s service "Faith in Action" is now available in our app. You can watch it anytime at your convenience.',
-    date: "2025-02-21",
+    date: "2025-02-20",
     category: "news",
   },
   {
@@ -121,26 +121,26 @@ export const LIVE_STREAMS: LiveStream[] = [
 export const CHURCH_EVENTS: Event[] = [
   {
     id: "1",
-    title: "Sunday Morning Worship",
+    title: "Sunday  Worship",
     description:
-      "Join us for our main worship service with praise, worship, and a powerful message from God's Word.",
-    date: "2025-02-23",
-    startTime: "10:00 AM",
-    endTime: "11:30 AM",
-    location: "Main Sanctuary",
+      "Join us for our  worship services with praise, worship, and a powerful message from God's Word.",
+    date: "Every Sunday",
+    startTime: "7:00 AM",
+    endTime: "2:00 PM",
+    location: "Omega Cathedral",
     category: "worship",
     capacity: 500,
     registered: 287,
   },
   {
     id: "2",
-    title: "Midweek Bible Study",
+    title: "Monday Bible Study",
     description:
-      "Deep dive into Scripture as we study the Book of Romans. Bring your Bible and join us for discussion and fellowship.",
-    date: "2025-02-26",
-    startTime: "7:00 PM",
-    endTime: "8:30 PM",
-    location: "Fellowship Hall",
+      "Deep dive into Scripture as we study the Bible. Bring your Bible and join us for discussion and fellowship.",
+    date: "Every Monday",
+    startTime: "6:00 PM",
+    endTime: "9:00 PM",
+    location: "Omega Cathedral",
     category: "study",
     capacity: 100,
     registered: 56,

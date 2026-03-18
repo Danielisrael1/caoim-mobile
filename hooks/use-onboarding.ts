@@ -7,7 +7,7 @@ const ONBOARDING_KEY = "@caoim_onboarding_complete";
  * Manages first-launch onboarding state.
  * Set ALWAYS_SHOW_ONBOARDING to true during development to see it every time.
  */
-const ALWAYS_SHOW_ONBOARDING = true; // ← flip to false for production
+const ALWAYS_SHOW_ONBOARDING = false; // onboarding should only show once on initial installation
 
 export function useOnboarding() {
   const [isLoading, setIsLoading] = useState(true);

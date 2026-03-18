@@ -1,9 +1,9 @@
 import { BottomFade } from "@/components/bottom-fade";
 import { EventCard } from "@/components/event-card";
-import { CHURCH_EVENTS } from "@/constants/church-data";
+import { type Event } from "@/constants/church-data";
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { Ionicons } from "@expo/vector-icons";
+import { generateNextServiceOccurrences } from "@/utils/service-schedule";
 import { useState } from "react";
 import {
   ScrollView,
@@ -13,6 +13,33 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+function toCardEventShape(e: {
+  id: string;
+  title: string;
+  description?: string;
+  category: any;
+  location: string;
+  startAt: Date;
+  endAt: Date;
+}): Event {
+  return {
+    id: e.id,
+    title: e.title,
+    description: e.description ?? "",
+    date: e.startAt.toISOString(),
+    startTime: e.startAt.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    endTime: e.endAt.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    location: e.location,
+    category: e.category,
+  };
+}
 
 export default function EventsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -26,9 +53,13 @@ export default function EventsScreen() {
     { id: "outreach", label: "Outreach" },
   ];
 
+  const serviceEvents: Event[] = generateNextServiceOccurrences(new Date()).map(
+    toCardEventShape,
+  );
+
   const filteredEvents = selectedCategory
-    ? CHURCH_EVENTS.filter((event) => event.category === selectedCategory)
-    : CHURCH_EVENTS;
+    ? serviceEvents.filter((event) => event.category === selectedCategory)
+    : serviceEvents;
 
   return (
     <SafeAreaView
@@ -39,10 +70,10 @@ export default function EventsScreen() {
         {/* Header */}
         <View style={styles.headerSection}>
           <Text style={[styles.headerTitle, { color: t.text }]}>
-            Church Events
+            Church Services
           </Text>
           <Text style={[styles.headerSubtitle, { color: t.textSecondary }]}>
-            {filteredEvents.length} event
+            {filteredEvents.length} service
             {filteredEvents.length !== 1 ? "s" : ""} coming up
           </Text>
         </View>
@@ -71,7 +102,7 @@ export default function EventsScreen() {
                   selectedCategory === null && { color: t.buttonText },
                 ]}
               >
-                All Events
+                All
               </Text>
             </TouchableOpacity>
 
@@ -112,71 +143,10 @@ export default function EventsScreen() {
           ) : (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateText, { color: t.textSecondary }]}>
-                No events found in this category
+                No services found in this category
               </Text>
             </View>
           )}
-        </View>
-
-        {/* Featured Section */}
-        <View style={styles.featuredSection}>
-          <Text style={[styles.featuredTitle, { color: t.text }]}>
-            Don&apos;t See What You&apos;re Looking For?
-          </Text>
-
-          <View
-            style={[
-              styles.featureCard,
-              { backgroundColor: t.cardBgElevated, borderColor: t.border },
-            ]}
-          >
-            <View style={styles.featureCardHeader}>
-              <Ionicons name="notifications" size={24} color={t.tint} />
-              <Text style={[styles.featureHeading, { color: t.text }]}>
-                Subscribe to Notifications
-              </Text>
-            </View>
-            <Text style={[styles.featureText, { color: t.textSecondary }]}>
-              Get notified about new events, schedule changes, and special
-              announcements.
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.featureCard,
-              { backgroundColor: t.cardBgElevated, borderColor: t.border },
-            ]}
-          >
-            <View style={styles.featureCardHeader}>
-              <Ionicons name="mail" size={24} color={t.tint} />
-              <Text style={[styles.featureHeading, { color: t.text }]}>
-                Email Newsletter
-              </Text>
-            </View>
-            <Text style={[styles.featureText, { color: t.textSecondary }]}>
-              Receive a weekly email with all upcoming events and ministry
-              opportunities.
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.featureCard,
-              { backgroundColor: t.cardBgElevated, borderColor: t.border },
-            ]}
-          >
-            <View style={styles.featureCardHeader}>
-              <Ionicons name="people" size={24} color={t.tint} />
-              <Text style={[styles.featureHeading, { color: t.text }]}>
-                Ask a Question
-              </Text>
-            </View>
-            <Text style={[styles.featureText, { color: t.textSecondary }]}>
-              Have questions about an event? Contact our team for more
-              information.
-            </Text>
-          </View>
         </View>
 
         {/* Bottom spacer for floating tab bar */}
@@ -232,37 +202,5 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 14,
     fontFamily: Fonts.regular,
-  },
-  featuredSection: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
-    gap: 12,
-  },
-  featuredTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: Fonts.bold,
-    marginBottom: 4,
-  },
-  featureCard: {
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  featureCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 8,
-  },
-  featureHeading: {
-    fontSize: 15,
-    fontWeight: "600",
-    fontFamily: Fonts.semiBold,
-  },
-  featureText: {
-    fontSize: 13,
-    fontFamily: Fonts.regular,
-    lineHeight: 20,
   },
 });
