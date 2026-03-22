@@ -3,14 +3,15 @@ import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 import { useUser } from "@/hooks/use-user";
+import { supabase } from "@/services/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,6 +22,16 @@ export default function ProfileScreen() {
   const t = useAppTheme();
   const { isDark, mode, setMode } = useThemeToggle();
   const { user } = useUser();
+
+  const onSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      // send user back to auth gate; RootLayout will also gate via isLoggedIn
+      router.replace("/auth");
+    } catch {
+      // ignore
+    }
+  };
 
   const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`;
 
@@ -237,6 +248,7 @@ export default function ProfileScreen() {
         {/* ── Sign Out ── */}
         <View style={styles.sectionContainer}>
           <TouchableOpacity
+            onPress={onSignOut}
             style={[
               styles.signOutButton,
               { backgroundColor: t.cardBg, borderColor: t.border },

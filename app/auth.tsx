@@ -1,6 +1,7 @@
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { supabase } from "@/services/supabase";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
@@ -16,11 +17,24 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function AuthScreen() {
+function cleanPhone(input: string) {
+  return input.replace(/[\s()-]/g, "").trim();
+}
+
+export default function AuthGateScreen() {
   const t = useAppTheme();
+  const router = useRouter();
+
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [loading, setLoading] = useState(false);
+
+  // sign-in
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  // sign-up extras
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const onSignIn = async () => {
     setLoading(true);
@@ -30,6 +44,8 @@ export default function AuthScreen() {
         password,
       });
       if (error) throw error;
+
+      router.replace("/(tabs)");
     } catch (e: any) {
       Alert.alert("Sign in failed", e?.message ?? "Please try again.");
     } finally {
@@ -38,23 +54,38 @@ export default function AuthScreen() {
   };
 
   const onSignUp = async () => {
+    if (!fullName.trim()) {
+      Alert.alert("Missing name", "Please enter your full name.");
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            phone: cleanPhone(phone),
+          },
+        },
       });
       if (error) throw error;
+
       Alert.alert(
-        "Check your email",
-        "We sent you a confirmation email. Confirm it, then come back and sign in.",
+        "Account created",
+        "If email confirmation is enabled on Supabase, please confirm your email, then sign in.",
       );
+      setMode("signin");
     } catch (e: any) {
       Alert.alert("Sign up failed", e?.message ?? "Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const title = mode === "signin" ? "Welcome back" : "Create your account";
 
   return (
     <SafeAreaView
@@ -70,14 +101,74 @@ export default function AuthScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Text style={[styles.title, { color: t.text }]}>Sign in</Text>
+            <Text style={[styles.title, { color: t.text }]}>{title}</Text>
             <Text style={[styles.subtitle, { color: t.textSecondary }]}>
-              Use your Supabase account.
+              {mode === "signin"
+                ? "Sign in once to access the app."
+                : "Fill in your details to get started."}
             </Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={[styles.label, { color: t.textSecondary }]}>
+            {mode === "signup" ? (
+              <>
+                <Text style={[styles.label, { color: t.textSecondary }]}>
+                  Full name
+                </Text>
+                <TextInput
+                  value={fullName}
+                  onChangeText={setFullName}
+                  placeholder="John Doe"
+                  placeholderTextColor={t.textSecondary}
+                  style={[
+                    styles.input,
+                    {
+                      color: t.text,
+                      backgroundColor: t.cardBg,
+                      borderColor: t.border,
+                    },
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.label,
+                    { color: t.textSecondary, marginTop: 12 },
+                  ]}
+                >
+                  Contact
+                </Text>
+                <TextInput
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType={Platform.select({
+                    ios: "phone-pad",
+                    android: "phone-pad",
+                    default: "numeric",
+                  })}
+                  placeholder="+234..."
+                  placeholderTextColor={t.textSecondary}
+                  style={[
+                    styles.input,
+                    {
+                      color: t.text,
+                      backgroundColor: t.cardBg,
+                      borderColor: t.border,
+                    },
+                  ]}
+                />
+              </>
+            ) : null}
+
+            <Text
+              style={[
+                styles.label,
+                {
+                  color: t.textSecondary,
+                  marginTop: mode === "signup" ? 12 : 0,
+                },
+              ]}
+            >
               Email
             </Text>
             <TextInput
@@ -120,7 +211,7 @@ export default function AuthScreen() {
 
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={onSignIn}
+              onPress={mode === "signin" ? onSignIn : onSignUp}
               disabled={loading}
               style={[
                 styles.primaryBtn,
@@ -131,25 +222,28 @@ export default function AuthScreen() {
                 <ActivityIndicator color={t.buttonText} />
               ) : (
                 <Text style={[styles.primaryBtnText, { color: t.buttonText }]}>
-                  Sign in
+                  {mode === "signin" ? "Sign in" : "Create account"}
                 </Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={onSignUp}
               disabled={loading}
+              onPress={() =>
+                setMode((m) => (m === "signin" ? "signup" : "signin"))
+              }
               style={[styles.secondaryBtn, { borderColor: t.border }]}
             >
               <Text style={[styles.secondaryBtnText, { color: t.text }]}>
-                Create account
+                {mode === "signin"
+                  ? "New here? Create account"
+                  : "Already have an account? Sign in"}
               </Text>
             </TouchableOpacity>
 
             <Text style={[styles.hint, { color: t.textSecondary }]}>
-              If email confirmation is enabled in Supabase, you must confirm
-              before signing in.
+              The name you provide will be used to greet you on the Home screen.
             </Text>
           </View>
         </ScrollView>
@@ -208,7 +302,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   secondaryBtnText: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: Fonts.bold,
   },
   hint: {

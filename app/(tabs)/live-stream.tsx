@@ -69,6 +69,7 @@ export default function LiveStreamScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [playerFailed, setPlayerFailed] = useState(false);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
   const ytConfigured = isYouTubeConfigured();
@@ -106,7 +107,10 @@ export default function LiveStreamScreen() {
     setRefreshing(false);
   };
 
-  const playVideo = (videoId: string) => setActiveVideoId(videoId);
+  const playVideo = (videoId: string) => {
+    setPlayerFailed(false);
+    setActiveVideoId(videoId);
+  };
 
   const activeVideo =
     ytLive?.id === activeVideoId
@@ -132,7 +136,17 @@ export default function LiveStreamScreen() {
 
   /* YouTube watch URL for the WebView player — loads the real YouTube mobile player */
   const getPlayerUrl = (videoId: string) =>
-    `https://www.youtube.com/watch?v=${videoId}`;
+    `https://www.youtube.com/embed/${videoId}?playsinline=1&autoplay=1&rel=0&modestbranding=1&origin=https%3A%2F%2Fwww.youtube.com`;
+
+  const openVideoExternally = useCallback((videoId: string) => {
+    // Prefer the YouTube app; fall back to browser.
+    const appUrl = `vnd.youtube://watch?v=${videoId}`;
+    const webUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+    Linking.canOpenURL(appUrl)
+      .then((can) => Linking.openURL(can ? appUrl : webUrl))
+      .catch(() => Linking.openURL(webUrl));
+  }, []);
 
   const handleSubscribe = () => Linking.openURL(getSubscribeUrl());
 
@@ -215,18 +229,73 @@ export default function LiveStreamScreen() {
         {activeVideoId ? (
           <View style={styles.playerSection}>
             <View style={styles.playerContainer}>
-              <WebView
-                ref={webViewRef}
-                source={{ uri: getPlayerUrl(activeVideoId) }}
-                style={styles.playerWebView}
-                allowsInlineMediaPlayback
-                mediaPlaybackRequiresUserAction={false}
-                javaScriptEnabled
-                domStorageEnabled
-                allowsFullscreenVideo
-                scrollEnabled={false}
-                userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
-              />
+              {playerFailed ? (
+                <View
+                  style={{
+                    height: PLAYER_HEIGHT,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 16,
+                    backgroundColor: t.cardBg,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: t.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: t.text,
+                      fontFamily: Fonts.semiBold,
+                      textAlign: "center",
+                    }}
+                  >
+                    This video can’t be played in-app.
+                  </Text>
+                  <Text
+                    style={{
+                      color: t.textSecondary,
+                      marginTop: 6,
+                      textAlign: "center",
+                    }}
+                  >
+                    Tap below to open it in YouTube.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => openVideoExternally(activeVideoId)}
+                    activeOpacity={0.85}
+                    style={{
+                      marginTop: 14,
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 12,
+                      backgroundColor: "#FF0000",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <Ionicons name="logo-youtube" size={18} color="#FFF" />
+                    <Text style={{ color: "#FFF", fontFamily: Fonts.semiBold }}>
+                      Open in YouTube
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <WebView
+                  ref={webViewRef}
+                  source={{ uri: getPlayerUrl(activeVideoId) }}
+                  style={styles.playerWebView}
+                  allowsInlineMediaPlayback
+                  mediaPlaybackRequiresUserAction={false}
+                  javaScriptEnabled
+                  domStorageEnabled
+                  allowsFullscreenVideo
+                  scrollEnabled={false}
+                  userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+                  onError={() => setPlayerFailed(true)}
+                  onHttpError={() => setPlayerFailed(true)}
+                />
+              )}
             </View>
             {activeVideo && (
               <View style={styles.nowPlayingInfo}>

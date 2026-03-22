@@ -2,6 +2,7 @@ import BrandSplash from "@/components/brand-splash";
 import OnboardingScreen from "@/components/onboarding-screen";
 import { Colors } from "@/constants/theme";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
 import {
     Poppins_400Regular,
@@ -24,13 +25,14 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
 
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
-
 function RootInner() {
   const { colorScheme } = useThemeToggle();
-  const { isLoading, isOnboarded, completeOnboarding } = useOnboarding();
+  const {
+    isLoading: onboardingLoading,
+    isOnboarded,
+    completeOnboarding,
+  } = useOnboarding();
+  const { isLoading: authLoading, isLoggedIn } = useSupabaseAuth();
   const [showSplash, setShowSplash] = useState(true);
   const theme = Colors[colorScheme ?? "light"];
 
@@ -70,8 +72,8 @@ function RootInner() {
     );
   }
 
-  // Still loading onboarding state from storage
-  if (isLoading) {
+  // Still loading onboarding or auth state from storage
+  if (onboardingLoading || authLoading) {
     return (
       <View
         style={{
@@ -89,6 +91,18 @@ function RootInner() {
     return (
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <OnboardingScreen onComplete={completeOnboarding} />
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    );
+  }
+
+  // After onboarding, require auth once
+  if (!isLoggedIn) {
+    return (
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
+        </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
     );
