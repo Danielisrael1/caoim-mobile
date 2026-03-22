@@ -2,31 +2,31 @@ import { BottomFade } from "@/components/bottom-fade";
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import {
-    fetchChannelInfo,
-    fetchLiveStream,
-    fetchRecentVideos,
-    formatViews,
-    getSubscribeUrl,
-    isYouTubeConfigured,
-    timeAgo,
-    VideoCategory,
-    VideoType,
-    YouTubeChannelInfo,
-    YouTubeVideo,
+  fetchChannelInfo,
+  fetchLiveStream,
+  fetchRecentVideos,
+  formatViews,
+  getSubscribeUrl,
+  isYouTubeConfigured,
+  timeAgo,
+  VideoCategory,
+  VideoType,
+  YouTubeChannelInfo,
+  YouTubeVideo,
 } from "@/services/youtube-api";
 import { Ionicons } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    Image,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -188,46 +188,22 @@ export default function LiveStreamScreen() {
         </View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* ── Channel Header ── */}
-        {channelInfo && (
-          <View style={styles.channelHeader}>
-            <Image
-              source={{ uri: channelInfo.thumbnail }}
-              style={styles.channelAvatar}
-            />
-            <View style={styles.channelMeta}>
-              <Text
-                style={[styles.channelName, { color: t.text }]}
-                numberOfLines={1}
-              >
-                {channelInfo.name}
-              </Text>
-              <Text style={[styles.channelStats, { color: t.textSecondary }]}>
-                {fmtSubs(channelInfo.subscriberCount)} subscribers ·{" "}
-                {channelInfo.videoCount} videos
-              </Text>
-            </View>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleSubscribe}
-              style={styles.subscribeBtn}
-            >
-              <Ionicons name="logo-youtube" size={16} color="#FFF" />
-              <Text style={styles.subscribeBtnText}>Subscribe</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* ── Inline Video Player ── */}
-        {activeVideoId ? (
-          <View style={styles.playerSection}>
+      {/* Sticky Player (stays on top while list scrolls) */}
+      {activeVideoId ? (
+        <View
+          style={{
+            position: "absolute",
+            top: 92, // below header section
+            left: 16,
+            right: 16,
+            zIndex: 50,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: t.background,
+            }}
+          >
             <View style={styles.playerContainer}>
               {playerFailed ? (
                 <View
@@ -284,7 +260,7 @@ export default function LiveStreamScreen() {
                 <WebView
                   ref={webViewRef}
                   source={{ uri: getPlayerUrl(activeVideoId) }}
-                  style={styles.playerWebView}
+                  style={[styles.playerWebView, { height: PLAYER_HEIGHT }]}
                   allowsInlineMediaPlayback
                   mediaPlaybackRequiresUserAction={false}
                   javaScriptEnabled
@@ -297,38 +273,16 @@ export default function LiveStreamScreen() {
                 />
               )}
             </View>
+
             {activeVideo && (
               <View style={styles.nowPlayingInfo}>
-                <Text
-                  style={[styles.nowPlayingTitle, { color: t.text }]}
-                  numberOfLines={2}
-                >
-                  {activeVideo.title}
-                </Text>
                 <View style={styles.nowPlayingRow}>
-                  {activeVideo.isLive ? (
-                    <View style={styles.nowPlayingLive}>
-                      <View style={styles.nowPlayingDot} />
-                      <Text style={styles.nowPlayingLiveText}>Live Stream</Text>
-                    </View>
-                  ) : (
-                    <Text
-                      style={[
-                        styles.nowPlayingMeta,
-                        { color: t.textSecondary },
-                      ]}
-                    >
-                      {activeVideo.viewCount
-                        ? formatViews(activeVideo.viewCount)
-                        : ""}
-                      {activeVideo.viewCount && activeVideo.publishedAt
-                        ? "  ·  "
-                        : ""}
-                      {activeVideo.publishedAt
-                        ? timeAgo(activeVideo.publishedAt)
-                        : ""}
-                    </Text>
-                  )}
+                  <Text
+                    style={[styles.nowPlayingTitle, { color: t.text, flex: 1 }]}
+                    numberOfLines={2}
+                  >
+                    {activeVideo.title}
+                  </Text>
                   <TouchableOpacity
                     onPress={() => setActiveVideoId(null)}
                     hitSlop={8}
@@ -340,10 +294,70 @@ export default function LiveStreamScreen() {
                     />
                   </TouchableOpacity>
                 </View>
+                {!activeVideo.isLive ? (
+                  <Text
+                    style={[
+                      styles.nowPlayingMeta,
+                      { color: t.textSecondary, paddingHorizontal: 16 },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {activeVideo.viewCount
+                      ? formatViews(activeVideo.viewCount)
+                      : ""}
+                    {activeVideo.viewCount && activeVideo.publishedAt
+                      ? "  ·  "
+                      : ""}
+                    {activeVideo.publishedAt
+                      ? timeAgo(activeVideo.publishedAt)
+                      : ""}
+                  </Text>
+                ) : null}
               </View>
             )}
           </View>
-        ) : null}
+        </View>
+      ) : null}
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 120,
+          paddingTop: activeVideoId ? PLAYER_HEIGHT + 120 : 0,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {/* ── Channel Header ── */}
+        {channelInfo && (
+          <View style={styles.channelHeader}>
+            <Image
+              source={{ uri: channelInfo.thumbnail }}
+              style={styles.channelAvatar}
+            />
+            <View style={styles.channelMeta}>
+              <Text
+                style={[styles.channelName, { color: t.text }]}
+                numberOfLines={1}
+              >
+                {channelInfo.name}
+              </Text>
+              <Text style={[styles.channelStats, { color: t.textSecondary }]}>
+                {fmtSubs(channelInfo.subscriberCount)} subscribers ·{" "}
+                {channelInfo.videoCount} videos
+              </Text>
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSubscribe}
+              style={styles.subscribeBtn}
+            >
+              <Ionicons name="logo-youtube" size={16} color="#FFF" />
+              <Text style={styles.subscribeBtnText}>Subscribe</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* ── Loading ── */}
         {loading && (
