@@ -1,49 +1,107 @@
 # CAOIM Church — Mobile App
 
-> **Christ The Alpha & Omega Int'l Ministries**
-> A React Native / Expo app for connecting the CAOIM church community.
+React Native / Expo (SDK 54) app for **Christ The Alpha & Omega Int'l Ministries (CAOIM Church)**.
 
-For full feature documentation, architecture details, and roadmap see **[CHURCH_APP_README.md](./CHURCH_APP_README.md)**.
+## What’s inside
 
-## Quick Start
+- **Expo Router** file-based navigation (`expo-router`)
+- **Brand splash** + **onboarding** flow
+- **Supabase Authentication** (email/password)
+  - Auth is required after onboarding (app is gated until login/signup succeeds)
+  - Profile includes **Sign out**
+- **YouTube** integration (Live tab)
+  - In-app player with a safe fallback to open in YouTube when a video is restricted
+- **Events** listing (recurring service logic)
+- **Media** tab
+- **Theme toggle** (system / light / dark)
+
+For full feature documentation and architecture notes see:
+- `CHURCH_APP_README.md`
+
+---
+
+## Requirements
+
+- Node.js (recommended: LTS)
+- npm
+- Expo account (only needed for EAS builds)
+
+---
+
+## Setup
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start the Expo dev server
+## Run (development)
+
+```bash
 npx expo start
 ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Platform shortcuts
 
 ```bash
-npm run reset-project
+npm run ios
+npm run android
+npm run web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Environment variables
 
-To learn more about developing your project with Expo, look at the following resources:
+Supabase keys are expected as public Expo env vars:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
-## Join the community
+(If they are missing, auth will not work.)
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## App icon / branding
+
+Configured in `app.json`:
+
+- App icon: `./assets/images/caoim-logo.png`
+- Android adaptive icon foreground: `./assets/images/caoim-logo.png`
+
+---
+
+## Android preview build (APK) with EAS
+
+This repo already includes `eas.json` with a `preview` profile configured to build an **APK**.
+
+1) Login (one time):
+
+```bash
+npx eas-cli login
+```
+
+2) Build preview APK:
+
+```bash
+npx eas-cli build -p android --profile preview
+```
+
+EAS will output a build URL and an APK download link when complete.
+
+---
+
+## Scripts
+
+- `npm run start` — start dev server
+- `npm run ios` — open iOS
+- `npm run android` — open Android
+- `npm run web` — open web
+- `npm run lint` — lint
+
+---
+
+## Repo notes
+
+- Routing is in `app/`.
+- Tabs live in `app/(tabs)/`.
+- Auth route is `app/auth.tsx`.
