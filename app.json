@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "caoimchurchuganda.org"
+      "package": "org.caoimchurchuganda.app"
     },
     "web": {
       "output": "static",

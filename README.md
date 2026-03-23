@@ -16,6 +16,7 @@ React Native / Expo (SDK 54) app for **Christ The Alpha & Omega Int'l Ministries
 - **Theme toggle** (system / light / dark)
 
 For full feature documentation and architecture notes see:
+
 - `CHURCH_APP_README.md`
 
 ---
@@ -74,13 +75,13 @@ Configured in `app.json`:
 
 This repo already includes `eas.json` with a `preview` profile configured to build an **APK**.
 
-1) Login (one time):
+1. Login (one time):
 
 ```bash
 npx eas-cli login
 ```
 
-2) Build preview APK:
+2. Build preview APK:
 
 ```bash
 npx eas-cli build -p android --profile preview
