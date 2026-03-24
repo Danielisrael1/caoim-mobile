@@ -4,16 +4,16 @@ import { supabase } from "@/services/supabase";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -61,7 +61,7 @@ export default function AuthGateScreen() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -73,11 +73,18 @@ export default function AuthGateScreen() {
       });
       if (error) throw error;
 
-      Alert.alert(
-        "Account created",
-        "If email confirmation is enabled on Supabase, please confirm your email, then sign in.",
-      );
-      setMode("signin");
+      // If Supabase email confirmation is OFF, a session will be returned and the user can proceed.
+      // If it's ON, data.session will be null and the user must confirm email.
+      if (!data?.session) {
+        Alert.alert(
+          "Email confirmation required",
+          "Please confirm your email, then sign in.",
+        );
+        setMode("signin");
+        return;
+      }
+
+      router.replace("/(tabs)");
     } catch (e: any) {
       Alert.alert("Sign up failed", e?.message ?? "Please try again.");
     } finally {

@@ -75,27 +75,30 @@ export default function LiveStreamScreen() {
   const ytConfigured = isYouTubeConfigured();
   const webViewRef = useRef<WebView>(null);
 
-  const loadYouTube = useCallback(async () => {
-    if (!ytConfigured) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const [videos, live, channel] = await Promise.all([
-        fetchRecentVideos(50),
-        fetchLiveStream(),
-        fetchChannelInfo(),
-      ]);
-      setYtVideos(videos);
-      setYtLive(live);
-      setChannelInfo(channel);
-      if (live) setActiveVideoId(live.id);
-    } catch {
-      /* silently fail */
-    } finally {
-      setLoading(false);
-    }
-  }, [ytConfigured]);
+  const loadYouTube = useCallback(
+    async (opts?: { forceRefresh?: boolean }) => {
+      if (!ytConfigured) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const [videos, live, channel] = await Promise.all([
+          fetchRecentVideos(50, { forceRefresh: opts?.forceRefresh }),
+          fetchLiveStream({ forceRefresh: opts?.forceRefresh }),
+          fetchChannelInfo(),
+        ]);
+        setYtVideos(videos);
+        setYtLive(live);
+        setChannelInfo(channel);
+        if (live) setActiveVideoId(live.id);
+      } catch {
+        /* silently fail */
+      } finally {
+        setLoading(false);
+      }
+    },
+    [ytConfigured],
+  );
 
   useEffect(() => {
     loadYouTube();
@@ -103,7 +106,7 @@ export default function LiveStreamScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadYouTube();
+    await loadYouTube({ forceRefresh: true });
     setRefreshing(false);
   };
 

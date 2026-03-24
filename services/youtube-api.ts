@@ -11,6 +11,8 @@
  * 4. Paste it into YOUTUBE_API_KEY below
  */
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 /** YouTube Data API v3 key */
 const YOUTUBE_API_KEY: string = process.env.EXPO_PUBLIC_YOUTUBE_API_KEY ?? "";
 
@@ -19,6 +21,52 @@ const CHANNEL_ID = "UCbS5Y40CjCU316YugzroIlg";
 
 /** Fallback channel handle used for URL linking */
 export const CHANNEL_URL = "https://www.youtube.com/@caoim26";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Caching
+// ─────────────────────────────────────────────────────────────────────────────
+
+type CacheEntry<T> = {
+  ts: number;
+  data: T;
+};
+
+const CACHE_KEYS = {
+  recentVideos: (maxResults: number) => `yt:recentVideos:v1:${maxResults}`,
+  liveStream: "yt:liveStream:v1",
+};
+
+// Default TTLs (tune as needed)
+const TTL_MS = {
+  recentVideos: 15 * 60 * 1000, // 15 minutes
+  liveStream: 2 * 60 * 1000, // 2 minutes (live status changes more often)
+};
+
+async function readCache<T>(key: string): Promise<CacheEntry<T> | null> {
+  try {
+    const raw = await AsyncStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw) as CacheEntry<T>;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCache<T>(key: string, entry: CacheEntry<T>): Promise<void> {
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(entry));
+  } catch {
+    // ignore cache write failures
+  }
+}
+
+function isFresh(ts: number, ttlMs: number): boolean {
+  return Date.now() - ts < ttlMs;
+}
+
+// In-memory inflight de-dupe (prevents repeated calls if a screen re-renders)
+let inflightRecent: Promise<YouTubeVideo[]> | null = null;
+let inflightLive: Promise<YouTubeVideo | null> | null = null;
 
 export type VideoType = "live" | "short" | "video";
 export type VideoCategory =
@@ -60,93 +108,147 @@ export function isYouTubeConfigured(): boolean {
   );
 }
 
-/** Fetch recent uploads from the CAOIM channel */
+/**
+ * Fetch recent uploads from the CAOIM channel.
+ * Uses AsyncStorage caching by default.
+ */
 export async function fetchRecentVideos(
   maxResults = 10,
+  opts?: { forceRefresh?: boolean },
 ): Promise<YouTubeVideo[]> {
   if (!isYouTubeConfigured()) return [];
 
-  try {
-    // Step 1: Get the uploads playlist ID
-    const channelRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${YOUTUBE_API_KEY}`,
-    );
-    const channelData = await channelRes.json();
-    const uploadsPlaylistId =
-      channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  const key = CACHE_KEYS.recentVideos(maxResults);
+  const forceRefresh = opts?.forceRefresh === true;
 
-    if (!uploadsPlaylistId) return [];
-
-    // Step 2: Get recent videos from uploads playlist
-    const playlistRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${maxResults}&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}`,
-    );
-    const playlistData = await playlistRes.json();
-    const items = playlistData?.items ?? [];
-
-    const videos: YouTubeVideo[] = items.map((item: any) => ({
-      id: item.snippet?.resourceId?.videoId ?? "",
-      title: item.snippet?.title ?? "Untitled",
-      description: item.snippet?.description?.slice(0, 200) ?? "",
-      thumbnail:
-        item.snippet?.thumbnails?.high?.url ??
-        item.snippet?.thumbnails?.default?.url ??
-        "",
-      publishedAt: item.snippet?.publishedAt ?? "",
-      isLive: false,
-    }));
-
-    // Step 3: Enrich with statistics (view counts, durations, likes)
-    const videoIds = videos.map((v) => v.id).filter(Boolean);
-    const stats = await fetchVideoStats(videoIds);
-    for (const video of videos) {
-      const s = stats[video.id];
-      if (s) {
-        video.viewCount = s.viewCount;
-        video.duration = s.duration;
-        video.likeCount = s.likeCount;
-        video.rawDuration = s.rawDuration;
-      }
-      // Classify type & category
-      video.videoType = classifyVideoType(video);
-      video.category = classifyCategory(video);
-    }
-
-    return videos;
-  } catch (error) {
-    console.warn("YouTube API error:", error);
-    return [];
+  if (!forceRefresh) {
+    const cached = await readCache<YouTubeVideo[]>(key);
+    if (cached && isFresh(cached.ts, TTL_MS.recentVideos)) return cached.data;
   }
+
+  if (inflightRecent) return inflightRecent;
+
+  inflightRecent = (async () => {
+    try {
+      // Step 1: Get the uploads playlist ID
+      const channelRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${YOUTUBE_API_KEY}`,
+      );
+      const channelData = await channelRes.json();
+      const uploadsPlaylistId =
+        channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+
+      if (!uploadsPlaylistId) return [];
+
+      // Step 2: Get recent videos from uploads playlist
+      const playlistRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${maxResults}&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}`,
+      );
+      const playlistData = await playlistRes.json();
+      const items = playlistData?.items ?? [];
+
+      const videos: YouTubeVideo[] = items.map((item: any) => ({
+        id: item.snippet?.resourceId?.videoId ?? "",
+        title: item.snippet?.title ?? "Untitled",
+        description: item.snippet?.description?.slice(0, 200) ?? "",
+        thumbnail:
+          item.snippet?.thumbnails?.high?.url ??
+          item.snippet?.thumbnails?.default?.url ??
+          "",
+        publishedAt: item.snippet?.publishedAt ?? "",
+        isLive: false,
+      }));
+
+      // Step 3: Enrich with statistics (view counts, durations, likes)
+      const videoIds = videos.map((v) => v.id).filter(Boolean);
+      const stats = await fetchVideoStats(videoIds);
+      for (const video of videos) {
+        const s = stats[video.id];
+        if (s) {
+          video.viewCount = s.viewCount;
+          video.duration = s.duration;
+          video.likeCount = s.likeCount;
+          video.rawDuration = s.rawDuration;
+        }
+        // Classify type & category
+        video.videoType = classifyVideoType(video);
+        video.category = classifyCategory(video);
+      }
+
+      await writeCache<YouTubeVideo[]>(key, { ts: Date.now(), data: videos });
+      return videos;
+    } catch (error) {
+      console.warn("YouTube API error:", error);
+
+      // If network fails, fall back to *stale* cache rather than empty UI
+      const cached = await readCache<YouTubeVideo[]>(key);
+      if (cached?.data) return cached.data;
+
+      return [];
+    } finally {
+      inflightRecent = null;
+    }
+  })();
+
+  return inflightRecent;
 }
 
-/** Check if channel is currently live */
-export async function fetchLiveStream(): Promise<YouTubeVideo | null> {
+/**
+ * Check if channel is currently live.
+ * Uses AsyncStorage caching by default.
+ */
+export async function fetchLiveStream(
+  opts?: { forceRefresh?: boolean },
+): Promise<YouTubeVideo | null> {
   if (!isYouTubeConfigured()) return null;
 
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${YOUTUBE_API_KEY}`,
-    );
-    const data = await res.json();
-    const liveItem = data?.items?.[0];
+  const key = CACHE_KEYS.liveStream;
+  const forceRefresh = opts?.forceRefresh === true;
 
-    if (!liveItem) return null;
-
-    return {
-      id: liveItem.id?.videoId ?? "",
-      title: liveItem.snippet?.title ?? "Live Stream",
-      description: liveItem.snippet?.description?.slice(0, 200) ?? "",
-      thumbnail:
-        liveItem.snippet?.thumbnails?.high?.url ??
-        liveItem.snippet?.thumbnails?.default?.url ??
-        "",
-      publishedAt: liveItem.snippet?.publishedAt ?? "",
-      isLive: true,
-    };
-  } catch (error) {
-    console.warn("YouTube live check error:", error);
-    return null;
+  if (!forceRefresh) {
+    const cached = await readCache<YouTubeVideo | null>(key);
+    if (cached && isFresh(cached.ts, TTL_MS.liveStream)) return cached.data;
   }
+
+  if (inflightLive) return inflightLive;
+
+  inflightLive = (async () => {
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${YOUTUBE_API_KEY}`,
+      );
+      const data = await res.json();
+      const liveItem = data?.items?.[0];
+
+      const live: YouTubeVideo | null = liveItem
+        ? {
+            id: liveItem.id?.videoId ?? "",
+            title: liveItem.snippet?.title ?? "Live Stream",
+            description: liveItem.snippet?.description?.slice(0, 200) ?? "",
+            thumbnail:
+              liveItem.snippet?.thumbnails?.high?.url ??
+              liveItem.snippet?.thumbnails?.default?.url ??
+              "",
+            publishedAt: liveItem.snippet?.publishedAt ?? "",
+            isLive: true,
+          }
+        : null;
+
+      await writeCache<YouTubeVideo | null>(key, { ts: Date.now(), data: live });
+      return live;
+    } catch (error) {
+      console.warn("YouTube live check error:", error);
+
+      const cached = await readCache<YouTubeVideo | null>(key);
+      if (cached?.data !== undefined) return cached.data;
+
+      return null;
+    } finally {
+      inflightLive = null;
+    }
+  })();
+
+  return inflightLive;
 }
 
 /** Build a YouTube watch URL */

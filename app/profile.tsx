@@ -3,10 +3,11 @@ import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 import { useUser } from "@/hooks/use-user";
-import { supabase } from "@/services/supabase";
+import { isSupabaseConfigured, supabase } from "@/services/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,6 +26,14 @@ export default function ProfileScreen() {
 
   const onSignOut = async () => {
     try {
+      if (!isSupabaseConfigured) {
+        Alert.alert(
+          "Not configured",
+          "Supabase is not configured for this build. Please rebuild the app with EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.",
+        );
+        return;
+      }
+
       await supabase.auth.signOut();
       // send user back to auth gate; RootLayout will also gate via isLoggedIn
       router.replace("/auth");

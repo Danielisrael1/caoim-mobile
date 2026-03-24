@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { isSupabaseConfigured, supabase } from "@/services/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 
@@ -14,6 +14,14 @@ export function useSupabaseAuth(): SupabaseAuthState {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // If Supabase isn't configured for this build, don't attempt to call it.
+    // (The Proxy would throw and can crash in production builds.)
+    if (!isSupabaseConfigured) {
+      setSession(null);
+      setIsLoading(false);
+      return;
+    }
+
     let mounted = true;
 
     supabase.auth
@@ -27,13 +35,15 @@ export function useSupabaseAuth(): SupabaseAuthState {
         setIsLoading(false);
       });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-    });
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        setSession(nextSession);
+      },
+    );
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      subscription.subscription.unsubscribe();
     };
   }, []);
 

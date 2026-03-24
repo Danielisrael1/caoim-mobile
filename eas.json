@@ -13,6 +13,11 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://epegjsznkpczihwsexwa.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_uMrbe_NbLspsDHQQoIifKQ_pBgZCMtu",
+        "EXPO_PUBLIC_YOUTUBE_API_KEY": "AIzaSyADM56MCdi4ajz7VT-3-q4aC1eZs24Kt8Y"
+      },
       "ios": {
         "simulator": false
       },
