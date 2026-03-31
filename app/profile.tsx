@@ -4,15 +4,23 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 import { useUser } from "@/hooks/use-user";
 import { isSupabaseConfigured, supabase } from "@/services/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
+import { useMemo, useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,7 +30,135 @@ export default function ProfileScreen() {
   const router = useRouter();
   const t = useAppTheme();
   const { isDark, mode, setMode } = useThemeToggle();
-  const { user } = useUser();
+  const { user, displayName, refreshLocalProfile } = useUser();
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [fullNameDraft, setFullNameDraft] = useState(displayName ?? "");
+  const [avatarDraft, setAvatarDraft] = useState<string | undefined>(
+    user.avatar,
+  );
+
+  const initials = useMemo(() => {
+    const a = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.trim();
+    if (a) return a;
+    const fromDisplay = (displayName ?? "").trim();
+    return fromDisplay ? (fromDisplay[0]?.toUpperCase() ?? "") : "";
+  }, [displayName, user.firstName, user.lastName]);
+
+  const onRequestNotifications = async () => {
+    try {
+      const perms = await Notifications.getPermissionsAsync();
+      if (perms.granted) {
+        Alert.alert("Notifications enabled", "You're all set.");
+        return;
+      }
+
+      const req = await Notifications.requestPermissionsAsync();
+      if (!req.granted) {
+        Alert.alert(
+          "Permission not granted",
+          "Please enable notifications in Settings to receive updates.",
+        );
+        return;
+      }
+
+      Alert.alert("Notifications enabled", "You're all set.");
+    } catch {
+      Alert.alert("Error", "Could not request notification permission.");
+    }
+  };
+
+  const onPickAvatar = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (perm.status !== "granted") {
+        Alert.alert(
+          "Permission needed",
+          "Please allow photo library access to choose a profile photo.",
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        // Accept any image format the picker can return (jpg/png/heic/webp/etc.)
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled) return;
+
+      const uri = result.assets?.[0]?.uri;
+      if (!uri) return;
+
+      // Persist to on-device app storage so it remains available on this device.
+      const extFromName = (() => {
+        try {
+          const noQuery = uri.split("?")[0];
+          const last = noQuery.split("/").pop() ?? "";
+          const dot = last.lastIndexOf(".");
+          if (dot === -1) return "";
+          return last.slice(dot).toLowerCase();
+        } catch {
+          return "";
+        }
+      })();
+
+      const baseDir =
+        (FileSystem as any).documentDirectory ??
+        (FileSystem as any).cacheDirectory ??
+        "";
+      if (!baseDir) {
+        // If we can't resolve a writable directory, fall back to using the picked URI.
+        setAvatarDraft(uri);
+        return;
+      }
+
+      const savedUri = `${baseDir}avatar_${user.id}${extFromName || ".jpg"}`;
+
+      // Best-effort cleanup (ignore if it doesn't exist).
+      await FileSystem.deleteAsync(savedUri, { idempotent: true });
+      await FileSystem.copyAsync({ from: uri, to: savedUri });
+
+      setAvatarDraft(savedUri);
+    } catch {
+      Alert.alert("Error", "Could not pick an image.");
+    }
+  };
+  const onSaveProfile = async () => {
+    const full = fullNameDraft.trim();
+    if (!full) {
+      Alert.alert("Missing name", "Please enter your full name.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Save profile updates locally to AsyncStorage as requested
+      const profileData = {
+        full_name: full,
+        avatar_url: avatarDraft,
+      };
+
+      await AsyncStorage.setItem(
+        `user_profile_${user.id}`,
+        JSON.stringify(profileData),
+      );
+
+      // Trigger a refresh of the user hook state
+      await refreshLocalProfile();
+
+      setEditOpen(false);
+      Alert.alert("Saved", "Your profile has been updated locally on this device.");
+    } catch (e: any) {
+      Alert.alert("Save failed", "Could not save your profile changes locally.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const onSignOut = async () => {
     try {
@@ -35,14 +171,11 @@ export default function ProfileScreen() {
       }
 
       await supabase.auth.signOut();
-      // send user back to auth gate; RootLayout will also gate via isLoggedIn
       router.replace("/auth");
     } catch {
       // ignore
     }
   };
-
-  const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`;
 
   const themeOptions: { id: ThemeMode; label: string; icon: string }[] = [
     { id: "system", label: "System", icon: "phone-portrait-outline" },
@@ -82,16 +215,29 @@ export default function ProfileScreen() {
               { backgroundColor: isDark ? "#2D3A5C" : "#203F9A" },
             ]}
           >
-            <Text style={styles.avatarText}>{initials}</Text>
+            {user.avatar ? (
+              <Image
+                source={{ uri: user.avatar }}
+                style={styles.avatarImage}
+                contentFit="cover"
+              />
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
           </View>
           <Text style={[styles.profileName, { color: t.text }]}>
-            {user.firstName} {user.lastName}
+            {displayName}
           </Text>
           <Text style={[styles.profileEmail, { color: t.textSecondary }]}>
             {user.email}
           </Text>
 
           <TouchableOpacity
+            onPress={() => {
+              setFullNameDraft(displayName ?? "");
+              setAvatarDraft(user.avatar);
+              setEditOpen(true);
+            }}
             style={[
               styles.editProfileBtn,
               { backgroundColor: t.cardBg, borderColor: t.border },
@@ -192,7 +338,9 @@ export default function ProfileScreen() {
               icon="notifications-outline"
               label="Notifications"
               theme={t}
+              value="Enable"
               hasChevron
+              onPress={onRequestNotifications}
             />
             <View style={[styles.divider, { backgroundColor: t.border }]} />
             <SettingItem
@@ -268,6 +416,80 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={editOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: t.cardBg, borderColor: t.border },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: t.text }]}>
+              Edit Profile
+            </Text>
+
+            <TouchableOpacity
+              onPress={onPickAvatar}
+              activeOpacity={0.85}
+              style={[styles.modalAction, { borderColor: t.border }]}
+            >
+              <Ionicons name="image-outline" size={18} color={t.tint} />
+              <Text style={[styles.modalActionText, { color: t.text }]}>
+                {avatarDraft ? "Change photo" : "Upload photo"}
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={[styles.modalLabel, { color: t.textSecondary }]}>
+              Username
+            </Text>
+            <TextInput
+              value={fullNameDraft}
+              onChangeText={setFullNameDraft}
+              placeholder="Your name"
+              placeholderTextColor={t.textSecondary}
+              style={[
+                styles.modalInput,
+                { color: t.text, borderColor: t.border },
+              ]}
+            />
+
+            <View style={styles.modalBtnsRow}>
+              <TouchableOpacity
+                onPress={() => setEditOpen(false)}
+                disabled={saving}
+                style={[
+                  styles.modalBtn,
+                  styles.modalBtnSecondary,
+                  { borderColor: t.border },
+                ]}
+              >
+                <Text style={[styles.modalBtnText, { color: t.text }]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={onSaveProfile}
+                disabled={saving}
+                style={[
+                  styles.modalBtn,
+                  { backgroundColor: t.tint, opacity: saving ? 0.7 : 1 },
+                ]}
+              >
+                <Text style={[styles.modalBtnText, { color: t.buttonText }]}>
+                  {saving ? "Saving..." : "Save"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <BottomFade />
     </SafeAreaView>
   );
@@ -280,15 +502,21 @@ function SettingItem({
   theme,
   value,
   hasChevron,
+  onPress,
 }: {
   icon: string;
   label: string;
   theme: any;
   value?: string;
   hasChevron?: boolean;
+  onPress?: () => void;
 }) {
   return (
-    <TouchableOpacity style={styles.settingItem} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.settingItem}
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
       <View style={styles.settingItemLeft}>
         <Ionicons name={icon as any} size={20} color={theme.tint} />
         <Text style={[styles.settingItemLabel, { color: theme.text }]}>
@@ -352,6 +580,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    overflow: "hidden", // Important for contained images
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   avatarText: {
     fontSize: 32,
@@ -484,5 +717,69 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: Fonts.semiBold,
     color: "#EF4444",
+  },
+
+  /* Modal */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    padding: 20,
+  },
+  modalCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: Fonts.bold,
+    marginBottom: 12,
+  },
+  modalAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  modalActionText: {
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+  },
+  modalLabel: {
+    fontSize: 12,
+    fontFamily: Fonts.medium,
+    marginBottom: 8,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 15,
+    fontFamily: Fonts.regular,
+    marginBottom: 14,
+  },
+  modalBtnsRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalBtn: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  modalBtnSecondary: {
+    borderWidth: 1,
+    backgroundColor: "transparent",
+  },
+  modalBtnText: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
   },
 });

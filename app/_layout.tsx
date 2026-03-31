@@ -2,7 +2,7 @@ import BrandSplash from "@/components/brand-splash";
 import OnboardingScreen from "@/components/onboarding-screen";
 import { Colors } from "@/constants/theme";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { UserProvider, useUser } from "@/hooks/use-user";
 import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
 import {
     Poppins_400Regular,
@@ -19,10 +19,11 @@ import {
     ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Platform, View } from "react-native";
 import "react-native-reanimated";
 
 function RootInner() {
@@ -32,9 +33,18 @@ function RootInner() {
     isOnboarded,
     completeOnboarding,
   } = useOnboarding();
-  const { isLoading: authLoading, isLoggedIn } = useSupabaseAuth();
+  const { isLoading: authLoading, isLoggedIn } = useUser();
   const [showSplash, setShowSplash] = useState(true);
   const theme = Colors[colorScheme ?? "light"];
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    // Hide Android system navigation buttons (immersive mode).
+    // Note: users can usually reveal system bars with an edge swipe.
+    NavigationBar.setVisibilityAsync("hidden").catch(() => {});
+    NavigationBar.setBehaviorAsync("overlay-swipe").catch(() => {});
+  }, []);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -133,7 +143,9 @@ function RootInner() {
 export default function RootLayout() {
   return (
     <ThemeToggleProvider>
-      <RootInner />
+      <UserProvider>
+        <RootInner />
+      </UserProvider>
     </ThemeToggleProvider>
   );
 }

@@ -197,9 +197,9 @@ export async function fetchRecentVideos(
  * Check if channel is currently live.
  * Uses AsyncStorage caching by default.
  */
-export async function fetchLiveStream(
-  opts?: { forceRefresh?: boolean },
-): Promise<YouTubeVideo | null> {
+export async function fetchLiveStream(opts?: {
+  forceRefresh?: boolean;
+}): Promise<YouTubeVideo | null> {
   if (!isYouTubeConfigured()) return null;
 
   const key = CACHE_KEYS.liveStream;
@@ -234,7 +234,10 @@ export async function fetchLiveStream(
           }
         : null;
 
-      await writeCache<YouTubeVideo | null>(key, { ts: Date.now(), data: live });
+      await writeCache<YouTubeVideo | null>(key, {
+        ts: Date.now(),
+        data: live,
+      });
       return live;
     } catch (error) {
       console.warn("YouTube live check error:", error);

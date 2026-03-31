@@ -2,31 +2,31 @@ import { BottomFade } from "@/components/bottom-fade";
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import {
-  fetchChannelInfo,
-  fetchLiveStream,
-  fetchRecentVideos,
-  formatViews,
-  getSubscribeUrl,
-  isYouTubeConfigured,
-  timeAgo,
-  VideoCategory,
-  VideoType,
-  YouTubeChannelInfo,
-  YouTubeVideo,
+    fetchChannelInfo,
+    fetchLiveStream,
+    fetchRecentVideos,
+    formatViews,
+    getSubscribeUrl,
+    isYouTubeConfigured,
+    timeAgo,
+    VideoCategory,
+    VideoType,
+    YouTubeChannelInfo,
+    YouTubeVideo,
 } from "@/services/youtube-api";
 import { Ionicons } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Image,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";

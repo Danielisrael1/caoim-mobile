@@ -1,19 +1,25 @@
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useUser } from "@/hooks/use-user";
 import { supabase } from "@/services/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,16 +31,32 @@ export default function AuthGateScreen() {
   const t = useAppTheme();
   const router = useRouter();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [loading, setLoading] = useState(false);
 
-  // sign-in
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  // sign-up extras
+  // sign-up fields
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+
+  // shared auth fields
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
+  const { refreshLocalProfile } = useUser();
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+    }
+  };
 
   const onSignIn = async () => {
     setLoading(true);
@@ -78,10 +100,34 @@ export default function AuthGateScreen() {
       if (!data?.session) {
         Alert.alert(
           "Email confirmation required",
-          "Please confirm your email, then sign in.",
+          "Please confirm your email, then sign in to continue.",
         );
         setMode("signin");
         return;
+      }
+
+      // If user picked a photo, save it locally
+      if (data?.user && avatarUri) {
+        try {
+          const filename = `avatar_${data.user.id}_${Date.now()}.jpg`;
+          const savedUri = `${FileSystem.documentDirectory}${filename}`;
+          await FileSystem.copyAsync({ from: avatarUri, to: savedUri });
+
+          // Save to AsyncStorage so useUser merges it
+          const profileData = {
+            full_name: fullName.trim(),
+            avatar_url: savedUri,
+          };
+          await AsyncStorage.setItem(
+            `user_profile_${data.user.id}`,
+            JSON.stringify(profileData),
+          );
+
+          // Force a refresh of user data
+          await refreshLocalProfile();
+        } catch (e) {
+          console.error("Local profile save failed during signup:", e);
+        }
       }
 
       router.replace("/(tabs)");
@@ -92,7 +138,7 @@ export default function AuthGateScreen() {
     }
   };
 
-  const title = mode === "signin" ? "Welcome back" : "Create your account";
+  const title = mode === "signup" ? "Create your account" : "Welcome back";
 
   return (
     <SafeAreaView
@@ -110,9 +156,9 @@ export default function AuthGateScreen() {
           <View style={styles.header}>
             <Text style={[styles.title, { color: t.text }]}>{title}</Text>
             <Text style={[styles.subtitle, { color: t.textSecondary }]}>
-              {mode === "signin"
-                ? "Sign in once to access the app."
-                : "Fill in your details to get started."}
+              {mode === "signup"
+                ? "You must create an account (or sign in) before you can access the app."
+                : "Sign in to access the app."}
             </Text>
           </View>
 
@@ -164,6 +210,28 @@ export default function AuthGateScreen() {
                     },
                   ]}
                 />
+
+                <Text style={[styles.label, { color: t.textSecondary, marginTop: 12 }]}>
+                  Profile Photo (Optional)
+                </Text>
+                <TouchableOpacity
+                  onPress={pickImage}
+                  style={[
+                    styles.photoPicker,
+                    { backgroundColor: t.cardBg, borderColor: t.border },
+                  ]}
+                >
+                  {avatarUri ? (
+                    <Image source={{ uri: avatarUri }} style={styles.photoPreview} />
+                  ) : (
+                    <View style={styles.photoPickerPlaceholder}>
+                      <Ionicons name="camera" size={24} color={t.textSecondary} />
+                      <Text style={[styles.photoPickerText, { color: t.textSecondary }]}>
+                        Pick a photo
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
               </>
             ) : null}
 
@@ -218,7 +286,7 @@ export default function AuthGateScreen() {
 
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={mode === "signin" ? onSignIn : onSignUp}
+              onPress={mode === "signup" ? onSignUp : onSignIn}
               disabled={loading}
               style={[
                 styles.primaryBtn,
@@ -229,7 +297,7 @@ export default function AuthGateScreen() {
                 <ActivityIndicator color={t.buttonText} />
               ) : (
                 <Text style={[styles.primaryBtnText, { color: t.buttonText }]}>
-                  {mode === "signin" ? "Sign in" : "Create account"}
+                  {mode === "signup" ? "Create account" : "Sign in"}
                 </Text>
               )}
             </TouchableOpacity>
@@ -238,19 +306,21 @@ export default function AuthGateScreen() {
               activeOpacity={0.85}
               disabled={loading}
               onPress={() =>
-                setMode((m) => (m === "signin" ? "signup" : "signin"))
+                setMode((m) => (m === "signup" ? "signin" : "signup"))
               }
               style={[styles.secondaryBtn, { borderColor: t.border }]}
             >
               <Text style={[styles.secondaryBtnText, { color: t.text }]}>
-                {mode === "signin"
-                  ? "New here? Create account"
-                  : "Already have an account? Sign in"}
+                {mode === "signup"
+                  ? "Already have an account? Sign in"
+                  : "New here? Create account"}
               </Text>
             </TouchableOpacity>
 
             <Text style={[styles.hint, { color: t.textSecondary }]}>
-              The name you provide will be used to greet you on the Home screen.
+              {mode === "signup"
+                ? "The name you provide will be used to greet you on the Home screen."
+                : "No access without an account — sign in with an existing one or create a new one."}
             </Text>
           </View>
         </ScrollView>
@@ -317,5 +387,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Fonts.regular,
     lineHeight: 18,
+  },
+  photoPicker: {
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+    overflow: "hidden",
+    alignSelf: "center",
+  },
+  photoPreview: {
+    width: "100%",
+    height: "100%",
+  },
+  photoPickerPlaceholder: {
+    alignItems: "center",
+    gap: 4,
+  },
+  photoPickerText: {
+    fontSize: 12,
+    fontFamily: Fonts.medium,
   },
 });

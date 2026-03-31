@@ -1,16 +1,28 @@
 import { Fonts } from "@/constants/theme";
-import { Tabs } from "expo-router";
-import React from "react";
+import { Tabs, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
+import { useUser } from "@/hooks/use-user";
 import { useThemeToggle } from "@/hooks/use-theme-toggle";
 
 export default function TabLayout() {
+  const router = useRouter();
+  const { isLoggedIn, isLoading } = useUser();
   const { colorScheme } = useThemeToggle();
   const theme = Colors[colorScheme ?? "light"];
+
+  useEffect(() => {
+    // Extra guard for Expo Go/dev where navigation state can persist.
+    // If user is not authenticated, do not allow access to tabs.
+    if (isLoading) return;
+    if (!isLoggedIn) {
+      router.replace("/auth");
+    }
+  }, [isLoggedIn, isLoading, router]);
 
   return (
     <Tabs

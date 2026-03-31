@@ -3,13 +3,17 @@ import { CHURCH_UPDATES } from "@/constants/church-data";
 import { Fonts } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useUser } from "@/hooks/use-user";
+import {
+  generateNextServiceOccurrences,
+  ServiceCategory,
+} from "@/utils/service-schedule";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import {
   Animated,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -22,8 +26,30 @@ const CAOIM_LOGO = require("@/assets/images/caoim-logo.png");
 export default function HomeScreen() {
   const router = useRouter();
   const t = useAppTheme();
-  const { greeting, displayName } = useUser();
+  const { user, greeting, displayName } = useUser();
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Dynamically fetch the next service
+  const nextServices = useMemo(() => generateNextServiceOccurrences(new Date()), []);
+  const nextService = nextServices[0];
+  
+  const isToday = nextService && new Date(nextService.startAt).toDateString() === new Date().toDateString();
+  const isTomorrow = nextService && new Date(nextService.startAt).toDateString() === new Date(Date.now() + 86400000).toDateString();
+
+  const getServiceLabel = () => {
+    if (!nextService) return "Bible Study";
+    if (isToday) return nextService.title;
+    return `Next: ${nextService.title}`;
+  };
+
+  const getBadgeLabel = () => {
+    if (!nextService) return undefined;
+    if (isToday) return "Today";
+    if (isTomorrow) return "Tomorrow";
+    return new Date(nextService.startAt).toLocaleDateString(undefined, { weekday: "short" });
+  };
+
+  const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.trim() || (displayName?.[0]?.toUpperCase() ?? "");
 
   const recentUpdate = CHURCH_UPDATES[0];
 
@@ -65,7 +91,7 @@ export default function HomeScreen() {
               <Image
                 source={CAOIM_LOGO}
                 style={styles.headerLogo}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </View>
             <View style={styles.headerRight}>
@@ -76,7 +102,17 @@ export default function HomeScreen() {
                   { backgroundColor: t.cardBg, borderColor: t.border },
                 ]}
               >
-                <Ionicons name="person" size={20} color={t.tint} />
+                {user.avatar ? (
+                  <Image
+                    source={{ uri: user.avatar }}
+                    style={styles.profileImage}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <View style={styles.initialsContainer}>
+                    <Text style={[styles.initialsText, { color: t.tint }]}>{initials}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -140,35 +176,34 @@ export default function HomeScreen() {
 
         {/* ── Bento Grid ── */}
         <View style={styles.bentoContainer}>
-          {/* Row 1: Wide card — Latest update */}
+          {/* Row 1: Wide card — Program of the Day */}
           <BentoCard
-            title={recentUpdate?.title ?? "Latest Update"}
+            title={getServiceLabel()}
             subtitle={
-              recentUpdate?.description
-                ? recentUpdate.description.slice(0, 80) + "..."
-                : undefined
+              nextService
+                ? `${nextService.startAt.toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })} · ${nextService.location}`
+                : "Follow church programs"
             }
-            icon={<Ionicons name="megaphone" size={28} color={t.tint} />}
+            badge={getBadgeLabel()}
+            icon={getCategoryIcon(nextService?.category || "study", t.tint)}
             bgColor={t.cardBg}
             textColor={t.text}
             subtitleColor={t.textSecondary}
             theme={t}
-            onPress={() => router.push("/(tabs)/updates")}
+            onPress={() => router.push("/(tabs)/events")}
             style={styles.bentoFull}
             isWide
           />
 
-          {/* Row 3: Two smaller cards */}
+          {/* Row 3: Updates + Prayer Wall */}
           <View style={styles.bentoRow}>
             <BentoCardSmall
-              title="Bible Study"
-              icon={
-                <MaterialCommunityIcons
-                  name="book-open-variant"
-                  size={24}
-                  color={t.tint}
-                />
-              }
+              title="Recent Update"
+              badge="New"
+              icon={<Ionicons name="megaphone" size={24} color={t.tint} />}
               bgColor={(t as any).bentoSmall}
               textColor={t.text}
               borderColor={t.border}
@@ -299,6 +334,36 @@ function BentoCard({
   );
 }
 
+
+function getCategoryIcon(category: ServiceCategory, color: string) {
+  switch (category) {
+    case "worship":
+      return <Ionicons name="sunny" size={24} color={color} />;
+    case "study":
+      return (
+        <MaterialCommunityIcons
+          name="book-open-variant"
+          size={24}
+          color={color}
+        />
+      );
+    case "prayer":
+      return <MaterialCommunityIcons name="hands-pray" size={24} color={color} />;
+    case "fellowship":
+      return <Ionicons name="people" size={24} color={color} />;
+    case "outreach":
+      return <Ionicons name="heart" size={24} color={color} />;
+    default:
+      return (
+        <MaterialCommunityIcons
+          name="book-open-variant"
+          size={24}
+          color={color}
+        />
+      );
+  }
+}
+
 function BentoCardSmall({
   title,
   icon,
@@ -306,6 +371,7 @@ function BentoCardSmall({
   textColor,
   borderColor,
   onPress,
+  badge,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -313,6 +379,7 @@ function BentoCardSmall({
   textColor: string;
   borderColor: string;
   onPress: () => void;
+  badge?: string;
 }) {
   return (
     <TouchableOpacity
@@ -320,7 +387,14 @@ function BentoCardSmall({
       onPress={onPress}
       style={[styles.bentoCardSmall, { backgroundColor: bgColor, borderColor }]}
     >
-      {icon}
+      <View style={styles.bentoCardSmallHeader}>
+        {icon}
+        {badge && (
+          <View style={styles.todayBadge}>
+            <Text style={styles.todayBadgeText}>{badge}</Text>
+          </View>
+        )}
+      </View>
       <Text style={[styles.bentoCardSmallTitle, { color: textColor }]}>
         {title}
       </Text>
@@ -368,6 +442,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
+    overflow: "hidden", // Important for contained images
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+  },
+  initialsContainer: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  initialsText: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
   },
   greeting: {
     fontSize: 15,
@@ -545,18 +634,33 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  /* Small bento card */
   bentoCardSmall: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
+    gap: 8,
+    minHeight: 110,
+    justifyContent: "space-between",
+  },
+  bentoCardSmallHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   bentoCardSmallTitle: {
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
+    fontFamily: Fonts.bold,
+  },
+  todayBadge: {
+    backgroundColor: "#F0F4FF",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  todayBadgeText: {
+    fontSize: 9,
+    fontFamily: Fonts.bold,
+    color: "#203F9A",
   },
 });
