@@ -4,6 +4,7 @@ import { Colors } from "@/constants/theme";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { UserProvider, useUser } from "@/hooks/use-user";
 import { ThemeToggleProvider, useThemeToggle } from "@/hooks/use-theme-toggle";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import {
     Poppins_400Regular,
     Poppins_400Regular_Italic,
@@ -33,8 +34,11 @@ function RootInner() {
     isOnboarded,
     completeOnboarding,
   } = useOnboarding();
-  const { isLoading: authLoading, isLoggedIn } = useUser();
+  const { isLoading: authLoading, isLoggedIn, user } = useUser();
   const [showSplash, setShowSplash] = useState(true);
+
+  // Initialize Expo Push Notifications
+  usePushNotifications(user?.id);
   const theme = Colors[colorScheme ?? "light"];
 
   useEffect(() => {

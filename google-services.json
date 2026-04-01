@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "931172267801",
+    "project_id": "caoim-ce6ff",
+    "storage_bucket": "caoim-ce6ff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931172267801:android:225288a5bd06ef91c17788",
+        "android_client_info": {
+          "package_name": "org.caoimchurchuganda.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8jRqgYAAiCDQvDDVQcHbs0JlNxZ7V2EY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

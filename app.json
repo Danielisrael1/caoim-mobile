@@ -8,6 +8,10 @@
     "scheme": "caoim",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "notification": {
+      "icon": "./assets/images/cao-icon.png",
+      "color": "#203F9A"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.lukwagodaniel.caoimchurch",
@@ -22,7 +26,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "org.caoimchurchuganda.app"
+      "package": "org.caoimchurchuganda.app",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
